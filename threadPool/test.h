@@ -40,7 +40,6 @@ public:
         idlThrNum = size < 1 ? 1 : size;
         for (size = 0; size < idlThrNum; ++size)
         {   //初始化线程数量
-            printf("%d", size) ; 
             pool.emplace_back(
                 //lamda值传递
                 [this]
@@ -123,6 +122,7 @@ public:
     //空闲线程数量
     int idlCount() { return idlThrNum; }
 };
+
 }
 
 #endif
