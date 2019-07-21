@@ -2,7 +2,8 @@
 #include<vector>
 #include<algorithm>
 using namespace std ;
-
+//畅柯
+//牛和羊　纸牌
 int main()
 {
     //纸牌数组

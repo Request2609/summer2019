@@ -1,6 +1,7 @@
 #include <iostream>
 using namespace std ;
 
+//畅柯　　小Q
 //本体使用二分查找的思想，不断分半
 //计算按照当前这种分法巧克力数量够不够
 int calSum(int mid, int days) {
