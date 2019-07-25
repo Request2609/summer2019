@@ -2,6 +2,10 @@
 #include"collectErr.h"
 
 connection :: connection() {
+    readCallBack = nullptr ;
+    closeCallBack = nullptr ;
+    writeCallBack = nullptr ;
+    timeoutCallBack = nullptr ;
     //创建一个套接字新连接
     sock = std :: make_shared<socketFd>() ;          
     buffer.bufferClear() ;
@@ -10,6 +14,17 @@ connection :: connection() {
 connection :: ~connection() {
 }
 
+//给channel设置回调
+void connection :: setCallBackToChannel(channel* channel_) {
+    if(readCallBack != nullptr)
+    channel_->setReadCallBack(readCallBack) ;
+    if(writeCallBack != nullptr)
+    channel_->setWriteCallBack(writeCallBack) ;
+    if(timeoutCallBack != nullptr)
+    channel_->setTimeoutCallBack(timeoutCallBack) ;
+    if(closeCallBack != nullptr)
+    channel_->setCloseCallBack(closeCallBack) ;
+}
 
 //关闭连接
 void connection :: shutdown() {
@@ -17,31 +32,33 @@ void connection :: shutdown() {
     sock->shutdownWrite(connFd) ;
 }
 
-//发送消息
-void connection :: sendMessage(Buffer* buffer) {
-             
-}
 void connection :: setReadCallBack(callBack& cb) {
-    this->readCallBack = cb ;
+    channel_.setReadCallBack(cb) ;
+    readCallBack = cb ;
 }
 
 void connection :: setCloseCallBack(callBack& cb) {
-    this->closeCallBack = cb ;
+    channel_.setCloseCallBack(cb) ;
+    closeCallBack = cb ;
 }
 
 void connection :: setWriteCallBack(callBack& cb) {
-    this->writeCallBack = cb ;
+    channel_.setWriteCallBack(cb) ;
+    writeCallBack = cb ;
 }
 
 void connection :: setTimeoutCallBack(callBack& cb) {
-    this->timeoutCallBack = cb ;
+    channel_.setTimeoutCallBack(cb) ;
+    timeoutCallBack = cb ;
 }
 
-//创建一个新监听套接字
+//创建一个新监听套接字，并将相应的channel中的fd设置一下
 int connection :: createListenFd(int port) {
-    sock->setAddr(port) ;     
+    sock->setAddr(port) ;   
     sock->bindAddress() ;
-    sock->startListen()  ; 
+    sock->startListen()  ;
+    int fd = sock->getListenSock() ;
+    channel_.setFd(fd) ;
     return 1 ;
 } ;
 

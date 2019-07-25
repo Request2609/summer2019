@@ -22,6 +22,8 @@ public:
     } ;
 
 public :
+    void setListenFd(int fd) { sockFd = fd ; }
+    void setConnFd(int fd) { connFd = fd ; }
     //设置地址
     int setAddr(int port) ;
     int setAddr(const char* ip, const char* port) ;

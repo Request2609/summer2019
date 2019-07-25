@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <memory>
+#include <map>
 #include <functional>
 #include "Socket.h"
 #include "Buffer.h"
@@ -14,12 +15,14 @@ public:
     connection() ;
     ~connection() ;
 public :
+    //将套接字类和channel进行绑定
     typedef std :: function<void()> callBack ;
 public :
+    void setCallBackToChannel(channel* channel_) ;
+    //设置channel的各种回调函数
     void setWriteCallBack(callBack& cb) ;
     void setCloseCallBack(callBack& cb) ;
     void setReadCallBack(callBack& cb) ;
-    void setSendMessageCallBack(callBack& cb) ;
     void setTimeoutCallBack(callBack& cb) ;
 public :
     //创建监听套接字
@@ -34,24 +37,23 @@ public :
     //关闭连接，实则是关闭套接字的写端
     //套接字真正的关闭时期是其对应的connection消亡
     void shutdown() ;
-private:
-    //超时回调
-    callBack timeoutCallBack ;
-    //读回调函数
-    callBack readCallBack ;
-    //写回调函数
-    callBack writeCallBack ;
-    //关闭连接回调函数
-    callBack closeCallBack ;
+    channel* getChannel() {
+        return &this->channel_ ;
+    }
 private :
+    //三种回调
+    callBack readCallBack ;
+    callBack writeCallBack ;
+    callBack closeCallBack ;
+    callBack timeoutCallBack ;
     //属于本套接字的buffer
     Buffer buffer ;
     //事件循环
-    std::shared_ptr<eventLoop> loop ;
-    //事件处理器
-    std :: unique_ptr<channel> channel_ ;
-    //套接字对象
-    std::shared_ptr<socketFd> sock;  
+    channel channel_ ;
+    //socketFd和事件处理器channel绑定
+    //封装监听套接字或者连接套接字类和channel对象的类
+    //监听套接字
+    std::shared_ptr<socketFd> sock ;
     //该连接的套接字
     int fd = -1;
 } ;
