@@ -1,5 +1,6 @@
 #include"Connection.h"
 #include"collectErr.h"
+using namespace std :: placeholders ;
 
 connection :: connection() {
     readCallBack = nullptr ;
@@ -32,22 +33,22 @@ void connection :: shutdown() {
     sock->shutdownWrite(connFd) ;
 }
 
-void connection :: setReadCallBack(callBack& cb) {
+void connection :: setReadCallBack(callBack cb) {
     channel_.setReadCallBack(cb) ;
-    readCallBack = cb ;
+    readCallBack = std::move(cb) ;
 }
 
-void connection :: setCloseCallBack(callBack& cb) {
+void connection :: setCloseCallBack(callBack cb) {
     channel_.setCloseCallBack(cb) ;
     closeCallBack = cb ;
 }
 
-void connection :: setWriteCallBack(callBack& cb) {
+void connection :: setWriteCallBack(callBack cb) {
     channel_.setWriteCallBack(cb) ;
     writeCallBack = cb ;
 }
 
-void connection :: setTimeoutCallBack(callBack& cb) {
+void connection :: setTimeoutCallBack(callBack cb) {
     channel_.setTimeoutCallBack(cb) ;
     timeoutCallBack = cb ;
 }

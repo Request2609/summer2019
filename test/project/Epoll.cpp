@@ -1,6 +1,6 @@
 #include "Epoll.h"
 #include "collectErr.h"
-
+#include "EventLoop.h"
 void epOperation :: add(int fd, int events) {
     struct epoll_event ev ;
     ev.data.fd = fd ;

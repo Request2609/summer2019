@@ -50,6 +50,7 @@ int main()
     struct iovec iov1[2] ;
     iov1[0].iov_base = readBuf1 ;
     iov1[1].iov_base = readBuf2 ;
+    //iov_len的值为所设置有效字符的长度，不能包括\0
     iov1[0].iov_len = sizeof(readBuf1)-1  ;
     iov1[1].iov_len = sizeof(readBuf2)-1 ;
     int nread = readv(fd1, iov1, 2) ;

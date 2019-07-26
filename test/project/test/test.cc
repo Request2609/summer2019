@@ -1,17 +1,14 @@
 #include <iostream>
-#include<map>
+#include <memory>
+#include<functional>
 using namespace std ;
-class A {
-
-} ;
 int main()
-{
-    map<int, string> mm ;
-    mm[1] = "hello" ;
-    if(mm[10] == NULL) {
-
+{   
+    function<void()> func=nullptr;
+    if(func ==nullptr) {
+        cout << "hello" << endl ;
     }
-    cout << mm[1] << endl ;
+    std::cout << "Hello world" << std::endl;
     return 0;
 }
 

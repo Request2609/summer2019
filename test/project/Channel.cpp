@@ -7,11 +7,13 @@ channel :: channel() {
     fd = -1 ;
 }
 
+//接收新连接
 int channel::handleAccept(int fd) {
     //设置监听套接字
     sock->setListenFd(fd) ;
     //获取新客户端连接
     fd = sock->acceptSocket() ;
+    //设置用户回调
     return fd ;
 }
 void channel :: setFd(int &fd) {
@@ -28,11 +30,14 @@ int channel :: readMsg() {
 
 void channel :: handleEvent() {
     if(events|EPOLLIN) {    
-        handleWrite() ;
+        int n = handleRead() ;
+        if(n < 0) {
+            return ;
+        }
     }
 
     if(events|EPOLLOUT) {
-        handleRead() ;
+        handleWrite() ;
     }
 }
 
@@ -44,6 +49,14 @@ int channel :: handleWrite() {
 
 //执行读回调
 int channel :: handleRead() {
-    input.readBuffer(fd) ;
+    
+    int n = input.readBuffer(fd) ;
+    if(n < 0) {
+        return -1 ;
+    }
+    //消息设置好后，调用用户回调函数处理    
+    if(input.getFlag() == true) {  
+        readCallBack(this) ;
+    }
     return 1 ;
 }

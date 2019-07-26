@@ -9,21 +9,21 @@
 #include "Channel.h"
 
 //封装TCP连接
-class connection : 
+class connection :
     public std::enable_shared_from_this<connection> {
 public:
     connection() ;
     ~connection() ;
 public :
     //将套接字类和channel进行绑定
-    typedef std :: function<void()> callBack ;
+    typedef std :: function<void(channel* chl)> callBack ;
 public :
     void setCallBackToChannel(channel* channel_) ;
     //设置channel的各种回调函数
-    void setWriteCallBack(callBack& cb) ;
-    void setCloseCallBack(callBack& cb) ;
-    void setReadCallBack(callBack& cb) ;
-    void setTimeoutCallBack(callBack& cb) ;
+    void setWriteCallBack(callBack cb) ;
+    void setCloseCallBack(callBack cb) ;
+    void setReadCallBack(callBack cb) ;
+    void setTimeoutCallBack(callBack cb) ;
 public :
     //创建监听套接字
     //创建指定端口号的监听套接字
