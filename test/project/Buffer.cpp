@@ -1,7 +1,6 @@
 #include"Buffer.h"
-#include"collectErr.h"
 
-Buffer :: Buffer():flag(0) {
+Buffer :: Buffer():canProcess(0) {
     hasData = -1 ;
     readIndex = 0 ;
     writeIndex = 0 ;
@@ -61,7 +60,7 @@ int Buffer :: retreiveBuffer(int start, int end) {
         buffer.clear() ;
     }   
     if(start > end) {
-        writeErr(__FILE__, __LINE__) ;
+        std :: cout << __FILE__ << "    " << __LINE__ << std :: endl ;
         return -1 ;
     }   
     readIndex += (end-start);
@@ -69,13 +68,22 @@ int Buffer :: retreiveBuffer(int start, int end) {
 }
 
 int Buffer :: readBuffer(int fd) {
+
     char buffer_[4096] ;
     //接收消息
     int n ;
-    if((n = readn(fd, buffer_, sizeof(buffer_))) < 0) {
-        writeErr(__FILE__, __LINE__) ;
+    std:: cout << "可读事件 " << std::endl ;
+    if(((n = read(fd, buffer_, sizeof(buffer_))) < 0) && errno != EINTR) {
+        std :: cout << __FILE__ << "    " << __LINE__ << strerror(errno)<< std :: endl ;
         return -1 ;
     }
+
+    //如果读取到0字节，就关闭连接
+    if(n == 0) {
+        return 0 ;
+    }
+    std ::cout << "接收字节长度：" << n << std::endl ;
+    std::cout << buffer_ << std::endl ;
     std::string end ;
     //处理消息
     //将消息传到缓冲区中
@@ -94,15 +102,16 @@ int Buffer :: readBuffer(int fd) {
         }
     }
     //如果收到了最后面的两个"\r\n\r\n"
-    //就调用消息处理
+    //就可以调用消息处理函数
     if(end == "\r\n\r\n") {
-        flag = true ;     
+        canProcess = true ; 
+        return n ;
     }
-
+    
     if(hasData != -1) {
         hasData-=n ;
         if(hasData == 0) {
-            flag = true ;
+            canProcess = true ;
         }
     }
     //且指针指向的不是０位置，读指针和写指针在同一位置，清空缓冲区

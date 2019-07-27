@@ -6,6 +6,22 @@ eventLoop :: eventLoop() {
     quit = false ;
 }
 
+int eventLoop :: clearCloseChannel(std::vector<channel>&list_) {
+    //从epoll中删除套接字
+    std::map<int, channel>::iterator iter ;
+    for(channel chl:list_) {
+        int fds = std::move(chl.getFd()) ;
+        epPtr->del(fds) ;
+        close(fds) ;
+        //从map列表中找到并删除
+        iter = clList.find(fds) ;
+        if(iter == clList.end()) {
+            return -1 ;
+        }
+        clList.erase(iter) ;
+    }
+    return 1 ;
+}
 
 void eventLoop :: loop() {
     //将conn加入到epoll中 
@@ -23,18 +39,32 @@ void eventLoop :: loop() {
             //可以设置定时器
         }
         else {
+            std::vector<channel>closeList ;
             //有事件发生
             for(channel channel: activeChannels) {
                 //处理事件
-                channel.handleEvent() ;
+                std :: cout << "发生时间的文件描述符："<<channel.getFd() << std::endl ;
+                int n = channel.handleEvent() ;
+                //将已经关闭的连接，收集起来
+                if(n == 0) {
+                    closeList.push_back(channel) ;
+                }
             }
+            //从clList将关闭事件清除
+            int n = clearCloseChannel(closeList) ;
+            if(n < 0) {
+                std :: cout << __FILE__<< "    " << __LINE__<< std::endl ;
+            }
+            //清空活跃事件集合
+            activeChannels.clear() ;
         }
     }   
 }
 
 //将活跃的事件加入到活跃事件表中
 int eventLoop :: fillChannelList(channel* chl) {
-    activeChannels.push_back(*chl) ;
+   activeChannels.push_back(*chl) ;
+   return 1 ;
 }
 
 //值有监听套接字拥有connection
@@ -52,6 +82,7 @@ void eventLoop :: addConnection(connection* con) {
 
 //根据描述符搜索channel对象
 channel* eventLoop :: search(int fd) {
+
     std::map<int, channel> :: iterator it = clList.find(fd) ;
     if(it == clList.end()) {
         return NULL ;
@@ -67,6 +98,9 @@ void eventLoop :: handleAccept() {
     //创建新连接
     int conFd = tmp.handleAccept(servFd) ;
     //为channel设置回调
+    //设置套接字非阻塞
+    conn->setnoBlocking(conFd) ;
+    epPtr->add(conFd, READ) ;
     conn->setCallBackToChannel(&tmp) ;
     //将channel加入到当前loop的列表中
     clList[conFd] = tmp ;

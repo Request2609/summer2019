@@ -18,6 +18,7 @@ public :
     //将套接字类和channel进行绑定
     typedef std :: function<void(channel* chl)> callBack ;
 public :
+    void setnoBlocking(int fd_) {sock->setNoBlocking(fd_) ;}
     void setCallBackToChannel(channel* channel_) ;
     //设置channel的各种回调函数
     void setWriteCallBack(callBack cb) ;

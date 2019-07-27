@@ -3,12 +3,9 @@
 #include<functional>
 using namespace std ;
 int main()
-{   
-    function<void()> func=nullptr;
-    if(func ==nullptr) {
-        cout << "hello" << endl ;
-    }
-    std::cout << "Hello world" << std::endl;
-    return 0;
+{
+    string a ;
+    a = "hello world!" ;
+    cout <<a.find(" ") << endl ;
 }
 

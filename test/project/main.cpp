@@ -3,21 +3,22 @@
 #include "TcpServer.h"
 #include "EventLoop.h"
 #include "Channel.h"
+#include "Process.h"
 using namespace std ;
 
 void onRead(channel* chl) {
-    Buffer* bf =chl->getReadBuffer() ;
-    //解析请求行
-    int readIndex = bf->getReadIndex() ;
-    int writeIndex = bf->getWriteIndex() ;
-    string a = bf->readBuffer(readIndex, writeIndex) ;
     //将信息获取完成，再解析
-    //解析请求行
-    int contentLength = 0 ;
-    string end ="";
-    while(end != "\r\n\r\n") {
-                 
+    //解析请求头
+    process pro ;
+    int flag = chl->getInput()->getCanProcess() ;
+    if(flag == 1) {
+        flag =  pro.requestHeader(chl) ;    
     }
+    //上面的程序执行完，可以将flag 置为1，继续解析请求体
+    if(flag == 0) {
+        
+    }
+    flag =  0 ;
 }
 
 int main(int argc, char** argv) {

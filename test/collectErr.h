@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _COLLECTION_H_
+#define _COLLECTION_H_
 #include<iostream>
 #include<fstream>
 #include<time.h>
@@ -22,4 +23,4 @@ void writeErr(const char* fileName, int line) {
     ofs.close() ;
 }
 
-
+#endif

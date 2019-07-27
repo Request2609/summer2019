@@ -1,5 +1,4 @@
 #include"Connection.h"
-#include"collectErr.h"
 using namespace std :: placeholders ;
 
 connection :: connection() {
@@ -55,7 +54,10 @@ void connection :: setTimeoutCallBack(callBack cb) {
 
 //创建一个新监听套接字，并将相应的channel中的fd设置一下
 int connection :: createListenFd(int port) {
+    std::cout << "监听套接字:" << sock->getListenSock() << std:: endl;
     sock->setAddr(port) ;   
+    sock->setNoBlocking(sock->getListenSock()) ;
+    sock->setReuseAddr() ;
     sock->bindAddress() ;
     sock->startListen()  ;
     int fd = sock->getListenSock() ;
@@ -67,14 +69,14 @@ int connection :: createListenFd(int port) {
 int connection :: doAccept() {
     int servFd = sock->getListenSock() ;
     if(servFd == -1) {
-        writeErr(__FILE__, __LINE__) ;
+        std::cout << __FILE__ << "    " << __LINE__ << std::endl ;  
         return -1 ;
     }   
     //存在的话
     int connFd = sock->acceptSocket() ;
     //接受连接失败;
     if(connFd < 0) {
-        writeErr(__FILE__, __LINE__) ;   
+        std::cout << __FILE__ << "    " << __LINE__ << std::endl ;  
         return -1 ;
     }
     this->fd = connFd ;

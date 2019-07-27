@@ -1,14 +1,14 @@
 #include "Epoll.h"
-#include "collectErr.h"
-#include "EventLoop.h"
+
 void epOperation :: add(int fd, int events) {
     struct epoll_event ev ;
     ev.data.fd = fd ;
     ev.events = events ;
     if(epoll_ctl(epFd, EPOLL_CTL_ADD, fd, &ev) < 0) {
-        writeErr(__FILE__, __LINE__) ;
+        std :: cout << __FILE__ << "   " << __LINE__ << std :: endl ;
         return ;
     }
+
     if(++ fds > nfds) {
         nfds *= 2 ;
         epFds.reserve(nfds) ;
@@ -21,14 +21,14 @@ void epOperation :: change(int fd, int events) {
     ev.data.fd = fd ;
     ev.events = events ;
     if(epoll_ctl(epFd, EPOLL_CTL_MOD, fd, &ev) < 0) {
-        writeErr(__FILE__, __LINE__) ;
+        std :: cout << __FILE__ << "   " << __LINE__ << std :: endl ;
         return ;
     }
 }
 
 void epOperation :: del(int fd) {
     if(epoll_ctl(epFd, EPOLL_CTL_DEL, fd, NULL) < 0){
-        writeErr(__FILE__, __LINE__) ;
+        std :: cout << __FILE__ << "   " << __LINE__ << std :: endl ;
         return  ;
     }
     fds -- ;
@@ -42,21 +42,24 @@ int epOperation :: wait(eventLoop* loop, int64_t timeout) {
     //将活跃的事件全部加入到事件列表中
     for(int i=0; i<eventNum; i++) {
         int fd = epFds[i].data.fd ;
+        
         //要是还未注册的事件
         if(fd == listenFd) {
-            //注册该连接
+            std::cout <<"监听描述符：" << listenFd<<std::endl ;
+            //接收并注册该连接
             loop->handleAccept() ;
+            continue ;
         }
-
-        channel* ch = loop->search(fd) ;
-        if(ch == NULL) {
-            writeErr(__FILE__, __LINE__) ;
-            return -1;
-        }
-        else {
-            //设置事件类型
-            ch->setEvents(epFds[i].events) ;
-            loop->fillChannelList(ch) ;   
+        //无论那种事件，否加入到活跃列表
+        if(fd != listenFd) {
+            channel* ch = loop->search(fd) ;
+            if(ch == NULL) {
+                std :: cout << __FILE__ << "   " << __LINE__ << std :: endl ;
+                return -1;
+            }
+            else {
+                loop->fillChannelList(ch) ;   
+            }
         }
     }
     return eventNum ;

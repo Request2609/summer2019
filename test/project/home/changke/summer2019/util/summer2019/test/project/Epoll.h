@@ -1,20 +1,21 @@
-#ifndef _EPOLL_H_
-#define _EPOLL_H_
+#pragma once
 #include <sys/epoll.h>
 #include <vector>
 #include <unistd.h>
 #include "EventLoop.h"
-class eventLoop ;
+
 class epOperation {
 public :
-    epOperation():fds(0),nfds(200) {
+    epOperation():fds(0),nfds(20) {
         epFd = epoll_create(1) ;
         //设置了epfds的capacity大小
         epFds.reserve(nfds) ;
+
     }   
     ~epOperation() { close(epFd) ; }
+    
 public :
-    int  wait(eventLoop* loop, int64_t timeout) ;
+    int wait(eventLoop* loop, int64_t timeout) ;
     void add(int fd, int events) ;
     void change(int fd, int events) ;
     void del(int fd) ;
@@ -25,5 +26,3 @@ private :
     int nfds ;
     std :: vector<struct epoll_event> epFds ;
 };
-
-#endif

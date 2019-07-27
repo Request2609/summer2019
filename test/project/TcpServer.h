@@ -1,9 +1,12 @@
-#pragma once
+#ifndef _TCPSERVER_H_
+#define _TCPSERVER_H_
 #include <map>
+#include<functional>
 #include<stdlib.h>
 #include "ThreadPool.h"
 #include "Connection.h"
 #include "EventLoop.h"
+
 class tcpServer
 {
     //将连接名置为端口号
@@ -13,6 +16,15 @@ public:
     tcpServer(eventLoop* loop, std::string port) ;
     ~tcpServer() {}
 public :
+    void print() {
+        std::cout << port << std::endl ;
+        std::cout << "hello world!" << std::endl ; }
+    void create() {
+        
+        pool = std::make_shared<threadPool>(1) ; 
+        threadPool tp(10);
+        pool->commit(std::bind(&tcpServer::print, this)) ;
+    }
     void  addNewConnection(connection& conn) ;
     void start() ;
     void setThreadNum(int num) ;
@@ -27,7 +39,6 @@ private :
     std :: shared_ptr<threadPool> pool ;
     //连接列表
     connection* conn ;
-    //connMap connList ;
 };
-
+#endif
 

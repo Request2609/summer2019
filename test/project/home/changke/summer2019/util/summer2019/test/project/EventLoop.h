@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 #include <memory>
 #include <atomic>
 #include <iostream>
@@ -6,8 +6,6 @@
 #include "Channel.h"
 #include "Epoll.h"
 #include "Connection.h"
-class connection ;
-class epOperation ;
 //事件循环 EventLoop和connection共享channel对象
 class eventLoop
 {   
@@ -16,14 +14,13 @@ public:
     eventLoop() ;
     ~eventLoop() {}
 public :
-    channel* search(int fd) ;
     int getListenFd() { return servFd ; }
+    channel* search(int fd) ;
     void loop() ;
-    void addConnection(connection* con) ;
+    void addConnection(connection* conn) ;
     void addClList(int fd, channel& channel_) ;
     int fillChannelList(channel*chl) ;
     void handleAccept() ;
-    int clearCloseChannel(std::vector<channel>&list_) ;
 private:
     int servFd  = -1 ;
     connection* conn ;

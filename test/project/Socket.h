@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _SOCKET_H_
+#define _SOCKET_H_
+#include<iostream>
 #include<sys/types.h>
 #include<sys/socket.h>
 #include<unistd.h>
@@ -50,4 +52,4 @@ private:
     struct sockaddr_in sockAddr ;
 };
 
-
+#endif

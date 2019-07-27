@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef _HTTP_H_
+#define _HTTP_H_
 class http
 {
 public:
@@ -7,6 +7,5 @@ public:
     ~http() {}
 
 private:
-    Method 
 };
-
+#endif

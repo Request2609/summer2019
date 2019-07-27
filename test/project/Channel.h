@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _CHANNEL_H_
+#define _CHANNEL_H_
 #include <iostream>
 #include <functional>
 #include <sys/epoll.h>
@@ -21,8 +22,10 @@ public:
     channel() ;
     ~channel() {}
 public :
+    Buffer* getInput() { return &input;  }
+    Buffer* getoutPut() { return &output;  }
     int getFd() {
-        return fd ;
+        return cliFd ;
     }
     void setFd(int& fd) ;   
     void setReadCallBack(callBack& cb) {
@@ -39,7 +42,7 @@ public :
         timeoutCallBack = cb ;
     }
     //判断是否收到了一段消息完整的消息"\r\n"结束
-    void handleEvent() ;
+    int handleEvent() ;
     int handleWrite() ;
     int handleRead() ;
     int handleAccept(int fd) ;
@@ -77,6 +80,7 @@ private :
     Buffer output ;
     //要是监听套接字的话，就是监听套接字的文件描述符
     //否则就是目标客户端的fd
-    int fd ;
+    int cliFd ;
 };
 
+#endif

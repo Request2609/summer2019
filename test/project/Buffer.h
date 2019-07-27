@@ -1,7 +1,10 @@
-#pragma once
+#ifndef _BUFFER_H_
+#define _BUFFER_H_
+#include<iostream>
 #include<vector>
 #include<string>
 #include<assert.h>
+#include<errno.h>
 #include<string.h>
 #include"ReadWrite.h"
 class Buffer
@@ -13,8 +16,8 @@ public:
     Buffer() ;
     ~Buffer() {}
 public :
-    void setFlag(int flag) { this->flag = flag ; }
-    int getFlag() {return flag ;}
+    void setCanProcess(int flag) { this->canProcess = flag ; }
+    int getCanProcess() {return canProcess ;}
     std :: string readBuffer(int start, int end) ;
     int retreiveBuffer(int start, int end) ;
     int retreiveBuffer(int n) ;
@@ -31,12 +34,13 @@ private :
     //减到0了以后，就回调消息处理函数
     int hasData ;
     //判断是否接受到了'\r\n\r\n'
-    int flag = 0 ;
+    int canProcess = 0 ;
     //开始读的地方
     int readIndex = 0;
     //开始写的地方
     int writeIndex = 0;
     std::vector<char>buffer ;
 };
+#endif
 
 
