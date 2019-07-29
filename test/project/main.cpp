@@ -22,6 +22,8 @@ void onRead(channel* chl) {
 }
 
 int main(int argc, char** argv) {
+    //切换到资源目录
+    chdir("source") ;
     eventLoop loop ;
     tcpServer server(&loop, argv[1]) ;
     connection conn ;

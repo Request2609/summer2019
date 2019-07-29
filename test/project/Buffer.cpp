@@ -67,6 +67,12 @@ int Buffer :: retreiveBuffer(int start, int end) {
     return readIndex ;
 }
 
+//想输入缓冲区添加信息
+void Buffer :: append(char c) {
+    buffer.push_back(c) ;
+    writeIndex ++ ;
+}
+
 int Buffer :: readBuffer(int fd) {
 
     char buffer_[4096] ;

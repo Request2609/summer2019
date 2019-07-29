@@ -14,6 +14,7 @@ public :
     }   
     ~epOperation() { close(epFd) ; }
 public :
+    int getEpFd() {return epFd ;}
     int  wait(eventLoop* loop, int64_t timeout) ;
     void add(int fd, int events) ;
     void change(int fd, int events) ;

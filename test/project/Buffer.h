@@ -16,6 +16,7 @@ public:
     Buffer() ;
     ~Buffer() {}
 public :
+    void append(char i) ;
     void setCanProcess(int flag) { this->canProcess = flag ; }
     int getCanProcess() {return canProcess ;}
     std :: string readBuffer(int start, int end) ;

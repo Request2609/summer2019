@@ -49,7 +49,6 @@ private :
     callBack timeoutCallBack ;
     //属于本套接字的buffer
     Buffer buffer ;
-    //事件循环
     channel channel_ ;
     //socketFd和事件处理器channel绑定
     //封装监听套接字或者连接套接字类和channel对象的类

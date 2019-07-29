@@ -1,5 +1,6 @@
 #include"ReadWrite.h"
-#include<iostream>/*
+#include<iostream>
+
 int readn(int fd, void *buf, int n) {
     int nleft = n; //还需要读取的字节数
     char *bufptr =(char*)buf; //指向read函数当前存放数据的位置
@@ -23,7 +24,7 @@ int readn(int fd, void *buf, int n) {
     std::cout <<"接收数据结束" << std :: endl ;
     return (n - nleft);
 }
-*//*
+
 int writen(int fd, void *buf, int n){
     int nleft = n;
     char *bufptr = (char*)buf;
@@ -43,4 +44,4 @@ int writen(int fd, void *buf, int n){
         bufptr += nwrite;
     }
     return (n-nleft); //  注意这里必须是 n 因为这里保证了 n 字节都被写入
-}*/
+}

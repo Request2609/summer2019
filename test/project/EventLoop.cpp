@@ -74,6 +74,7 @@ void eventLoop :: addConnection(connection* con) {
     channel* channel_ = conn->getChannel() ;
     int fd = channel_->getFd() ;
     servFd = fd ;
+    channel_->setEpFd(epPtr->getEpFd()) ;
     //将这个服务器监听套接字加入到epoll中，只负责监听可读事件，LT模式
     channel_->setEvents(READ) ;
     //将fd和channel作为键值存入channelMap中
@@ -100,6 +101,7 @@ void eventLoop :: handleAccept() {
     //为channel设置回调
     //设置套接字非阻塞
     conn->setnoBlocking(conFd) ;
+    tmp.setEpFd(epPtr->getEpFd()) ;
     epPtr->add(conFd, READ) ;
     conn->setCallBackToChannel(&tmp) ;
     //将channel加入到当前loop的列表中

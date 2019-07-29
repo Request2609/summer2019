@@ -4,8 +4,10 @@
 #include <functional>
 #include <sys/epoll.h>
 #include <memory>
+#include "Epoll.h"
 #include "Socket.h"
 #include "Buffer.h"
+
 using namespace std :: placeholders ;
 enum {
     READ = EPOLLIN,
@@ -22,8 +24,6 @@ public:
     channel() ;
     ~channel() {}
 public :
-    Buffer* getInput() { return &input;  }
-    Buffer* getoutPut() { return &output;  }
     int getFd() {
         return cliFd ;
     }
@@ -41,6 +41,10 @@ public :
     void setTimeoutCallBack(callBack& cb) {
         timeoutCallBack = cb ;
     }
+
+    int getEpFd() { return epFd ; }
+    void setEpFd(int efd){epFd = efd ;}
+    int updateChannel() ;
     //判断是否收到了一段消息完整的消息"\r\n"结束
     int handleEvent() ;
     int handleWrite() ;
@@ -58,6 +62,8 @@ public :
     Buffer* getReadBuffer() { return  &input ;}
     Buffer* getWriteBuffer() { return  &output ;}
 private :
+    //管理channel描述符对象的epoll句柄
+    int epFd ;
     int flag = 0 ;
     //设置一个标志，是否要继续读
     //感兴趣的事件

@@ -22,6 +22,19 @@ void channel :: setFd(int &fd) {
     this->cliFd = fd ;
 }
 
+//修改监听事件
+int channel :: updateChannel() {
+    struct epoll_event ev ;
+    ev.data.fd = cliFd ;
+    ev.events = events ;
+    int ret = epoll_ctl(epFd, EPOLL_CTL_MOD, cliFd, &ev) ;
+    if(ret < 0) {
+        std::cout << __FILE__ << "      " << __LINE__ << std::endl ;
+        return -1 ;
+    } 
+    return 1 ;
+}
+
 int channel :: sendMsg() {
      return 1 ;  
 }
@@ -40,16 +53,62 @@ int channel :: handleEvent() {
             return 0 ;
         }
     }
-
     if(events|EPOLLOUT) {
         handleWrite() ;
+        //关闭写端
+        disableWrite() ;
+        updateChannel() ;
     }
     return 1 ;
 }
 
 //执行写回调
 int channel :: handleWrite() {
-    
+    //写缓冲区
+    char buf[4096] ;
+    int j = 0 ;
+    bzero(buf, sizeof(buf)) ;
+    int len = input.getWriteIndex() ;
+    //文件长度小于4096
+    if(len < 4096) {
+        for(int i=0; i< len; i++) {
+            buf[j] = input[i] ;
+            j++ ;
+        }
+
+        buf[j] = '\0' ;
+        int ret = writen(cliFd, buf, sizeof(buf)) ;
+        if(ret < 0) {
+            std :: cout << __FILE__ << "     " << std:: endl ;
+            return -1 ;
+        }
+        input.bufferClear() ;
+        return  ret;
+    } 
+    int ret = 0 ;
+    //文件长度大于4096
+    for(int i=0; i<len; i++) {
+        if(i == 4095) {
+            buf[j] = '\0' ;
+            ret += writen(cliFd, buf, sizeof(buf)) ;
+            if(ret < 0) {
+                std::cout << __FILE__ << "     "  << __LINE__ << std::endl ;  
+                return -1 ;
+            }
+            bzero(buf, sizeof(buf)) ;
+            j = 0 ;
+        }
+        buf[j] = input[i] ;
+        j++ ;
+    }
+    if(strlen(buf) > 0) {
+        ret += writen(cliFd, buf, sizeof(buf)) ;
+        if(ret < 0) {
+            std :: cout << __FILE__ << "      " << __LINE__ << std::endl ;
+            return -1 ;
+        }
+    }
+    input.bufferClear() ;
     return 1 ;
 }
 
