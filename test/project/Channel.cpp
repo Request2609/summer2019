@@ -1,6 +1,6 @@
 #include "Channel.h"
+
 channel :: channel() {
-    sock = std::make_shared<socketFd>() ;
     events = 0 ;
     input.bufferClear() ;
     output.bufferClear() ;
@@ -18,6 +18,7 @@ int channel::handleAccept(int servFd) {
     //设置用户回调
     return cliFd ;
 }
+
 void channel :: setFd(int &fd) {
     this->cliFd = fd ;
 }
@@ -54,8 +55,11 @@ int channel :: handleEvent() {
         }
     }
     if(events|EPOLLOUT) {
-        handleWrite() ;
-        //关闭写端
+        int ret = handleWrite() ;
+        if(ret < 0) {
+            
+        }
+        //关闭写事件
         disableWrite() ;
         updateChannel() ;
     }
@@ -68,46 +72,55 @@ int channel :: handleWrite() {
     char buf[4096] ;
     int j = 0 ;
     bzero(buf, sizeof(buf)) ;
-    int len = input.getWriteIndex() ;
+    int len = output.getWriteIndex() - output.getReadIndex() ;
     //文件长度小于4096
+    int sum = 0 ;
     if(len < 4096) {
         for(int i=0; i< len; i++) {
-            buf[j] = input[i] ;
+            buf[j] = output[i] ;
             j++ ;
         }
-
         buf[j] = '\0' ;
+        std::cout << buf << std::endl ;
         int ret = writen(cliFd, buf, sizeof(buf)) ;
         if(ret < 0) {
             std :: cout << __FILE__ << "     " << std:: endl ;
             return -1 ;
         }
+        sum+= ret ;
+        //close(cliFd) ;
         input.bufferClear() ;
-        return  ret;
-    } 
+        //返回１表示可以将连接关闭掉,同事将本channel从EventLoop中删除
+        return  1;
+    }
     int ret = 0 ;
     //文件长度大于4096
     for(int i=0; i<len; i++) {
-        if(i == 4095) {
+        if(j == 4095) {
             buf[j] = '\0' ;
-            ret += writen(cliFd, buf, sizeof(buf)) ;
+            ret = writen(cliFd, buf, sizeof(buf)) ;
             if(ret < 0) {
                 std::cout << __FILE__ << "     "  << __LINE__ << std::endl ;  
                 return -1 ;
-            }
+            } 
+            sum += ret ;
             bzero(buf, sizeof(buf)) ;
             j = 0 ;
         }
-        buf[j] = input[i] ;
+        buf[j] = output[i] ;
+        output.retreiveBuffer() ;
         j++ ;
     }
+    
     if(strlen(buf) > 0) {
-        ret += writen(cliFd, buf, sizeof(buf)) ;
+        ret = writen(cliFd, buf, sizeof(buf)) ;
         if(ret < 0) {
             std :: cout << __FILE__ << "      " << __LINE__ << std::endl ;
             return -1 ;
         }
+        sum+= ret ;
     }
+    //close(cliFd) ;
     input.bufferClear() ;
     return 1 ;
 }

@@ -8,6 +8,10 @@ tcpServer :: tcpServer(eventLoop* loop, std::string  port) {
     //设置线程先设置一个
     threadNum  = 1 ;
 }
+
+tcpServer :: tcpServer(eventLoop* loop, std::string  port, std::string addr) {
+    return ;       
+}
 //用户只需要设置好conn的各种回调函数
 //tcpServer
 void tcpServer :: addNewConnection(connection& conn) {
@@ -20,3 +24,4 @@ void tcpServer :: start() {
     //将新连接加入到loop中，暂时单线程，可以开线程跑
     loop->addConnection(conn) ;
 }
+

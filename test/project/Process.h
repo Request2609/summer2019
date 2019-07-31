@@ -28,6 +28,11 @@ public :
     int getVersionPath(string  tmp) ;
     void responseHead(channel* chl, string type, long len, int statusCode, string tip) ;
     void readFile(const char* file, channel* chl) ;
+    void sendNotFind(channel* chl) ;
+    void readFile(channel* chl) ;
+    string getFileType() ;
+    int getContentLength(string a, channel* chl) ;  
+    int getSubmitInfo(int pos, int l, string& a, channel* chl) ;
 private:
     string post ;
     string paths ;

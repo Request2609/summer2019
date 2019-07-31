@@ -4,6 +4,7 @@ void epOperation :: add(int fd, int events) {
     struct epoll_event ev ;
     ev.data.fd = fd ;
     ev.events = events ;
+
     if(epoll_ctl(epFd, EPOLL_CTL_ADD, fd, &ev) < 0) {
         std :: cout << __FILE__ << "   " << __LINE__ << std :: endl ;
         return ;
@@ -50,7 +51,7 @@ int epOperation :: wait(eventLoop* loop, int64_t timeout) {
             loop->handleAccept() ;
             continue ;
         }
-        //无论那种事件，否加入到活跃列表
+        //无论那种事件，都加入到活跃列表
         if(fd != listenFd) {
             channel* ch = loop->search(fd) ;
             if(ch == NULL) {

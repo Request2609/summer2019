@@ -10,7 +10,7 @@ void onRead(channel* chl) {
     //将信息获取完成，再解析
     //解析请求头
     process pro ;
-    int flag = chl->getInput()->getCanProcess() ;
+    int flag = chl->getReadBuffer()->getCanProcess() ;
     if(flag == 1) {
         flag =  pro.requestHeader(chl) ;    
     }
@@ -23,8 +23,13 @@ void onRead(channel* chl) {
 
 int main(int argc, char** argv) {
     //切换到资源目录
-    chdir("source") ;
+   int ret =  chdir("source") ;
+    if(ret < 0) {
+        cout << __FILE__ << "      " << __LINE__ << endl ;
+        return 0 ;
+    }
     eventLoop loop ;
+
     tcpServer server(&loop, argv[1]) ;
     connection conn ;
     //设置新连接的回调函数
