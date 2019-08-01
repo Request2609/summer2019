@@ -34,7 +34,7 @@ socketFd :: socketFd(const char* port) {
     sockAddr.sin_addr.s_addr = htonl(INADDR_ANY) ;
 }
 
-socketFd :: socketFd(const char* addr, const char*port) {
+socketFd :: socketFd(const std::string addr, const std::string port) {
     
     sockFd = socket(AF_INET, SOCK_STREAM, 0) ;
     if(sockFd < 0) {
@@ -44,8 +44,8 @@ socketFd :: socketFd(const char* addr, const char*port) {
 
     bzero(&sockAddr, sizeof(sockAddr)) ;
     sockAddr.sin_family = AF_INET ;
-    sockAddr.sin_port = htons(atoi(port)) ;
-    sockAddr.sin_addr.s_addr = inet_addr(addr) ;
+    sockAddr.sin_port = htons(atoi(port.c_str())) ;
+    sockAddr.sin_addr.s_addr = inet_addr(addr.c_str()) ;
 }   
 
 int socketFd :: setAddr(int port) {

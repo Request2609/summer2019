@@ -9,15 +9,27 @@ tcpServer :: tcpServer(eventLoop* loop, std::string  port) {
     threadNum  = 1 ;
 }
 
-tcpServer :: tcpServer(eventLoop* loop, std::string  port, std::string addr) {
+void tcpServer :: create(eventLoop* loop) {
+    this->loop = loop  ;
+}
+
+void tcpServer :: create(eventLoop* loop, std::string  port) {
+    //获取用户传进来的eventLoop
     this->loop = loop ;
-    
+    this->port = atoi(port.c_str()) ;
+    //设置线程先设置一个
+    threadNum  = 1 ;
+}
+
+//传一个参数的构造
+tcpServer :: tcpServer(eventLoop* loop) {
+    this->loop = loop ;
     return ;       
 }
 //用户只需要设置好conn的各种回调函数
 //tcpServer
-void tcpServer :: addNewConnection(connection& conn) {
-    this->conn = &conn ;
+void tcpServer :: addNewConnection(connection* conn) {
+    this->conn = conn ;
     //创建监听套接字，并设置好内部channel类
     this->conn->createListenFd(port) ;
 }

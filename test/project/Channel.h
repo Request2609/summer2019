@@ -61,9 +61,12 @@ public :
     int getEvents() { return events ; }
     int sendMsg() ;
     int readMsg() ;
+    void setLen(long len) { this->len= len ; }
+    long getLen() { return len ; }
     Buffer* getReadBuffer() { return  &input ;}
     Buffer* getWriteBuffer() { return  &output ;}
 private :
+    long len ;
     //管理channel描述符对象的epoll句柄
     int epFd ;
     int flag = 0 ;

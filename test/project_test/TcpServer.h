@@ -14,9 +14,12 @@ class tcpServer
 public:
     //暂时使用回环网卡测试，就不传IP了！
     tcpServer(eventLoop* loop, std::string port) ;
-    tcpServer(eventLoop* loop, std::string port, std::string addr) ;
+    tcpServer(eventLoop* loop) ;
+    tcpServer(): loop(nullptr) {}
     ~tcpServer() {}
 public :
+    void create(eventLoop* loop) ;
+    void create(eventLoop* loop, std::string port) ;
     void print() {
         std::cout << port << std::endl ;
         std::cout << "hello world!" << std::endl ; }
@@ -26,7 +29,7 @@ public :
         threadPool tp(10);
         pool->commit(std::bind(&tcpServer::print, this)) ;
     }
-    void  addNewConnection(connection& conn) ;
+    void  addNewConnection(connection* conn) ;
     void start() ;
     void setThreadNum(int num) ;
 private :

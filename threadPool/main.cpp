@@ -30,7 +30,12 @@ int main()
         std :: future<void> ff = pool.commit(func, 1);       
         std :: future<int> ff1 = pool.commit(func2, 1,2) ;
         std :: future<int> ff2 = pool.commit(gfunc{},2) ;     
-        
+        printf("ff:") ;
+        ff.get();
+        printf("ff1:") ;
+        ff1.get() ;
+        printf("ff2:") ;
+        ff2.get() ;
     } catch(std :: exception& e) {
         std :: cout << "some unhappy happened..." << std :: this_thread :: get_id() << e.what() << std :: endl ;
     }

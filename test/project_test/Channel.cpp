@@ -5,12 +5,12 @@ channel :: channel() {
     input.bufferClear() ;
     output.bufferClear() ;
     cliFd = -1 ;
+    len = 0 ;
 }
 
 //接收新连接
 int channel::handleAccept(int servFd) {
 
-    std :: cout << "接收新连接" << std::endl ;
     //设置监听套接字
     sock->setListenFd(servFd) ;
     //获取新客户端连接
@@ -81,14 +81,17 @@ int channel :: handleWrite() {
             buf[j] = output[i] ;
             j++ ;
         }
+
         buf[j] = '\0' ;
         std::cout << buf << std::endl ;
+        //写文件长度
         int ret = writen(cliFd, buf, sizeof(buf)) ;
         if(ret < 0) {
             std :: cout << __FILE__ << "     " << std:: endl ;
             return -1 ;
         }
         sum+= ret ;
+        std::cout << "发送字节数---------------------------------------------------->" << sum << std::endl ;
         //close(cliFd) ;
         input.bufferClear() ;
         //返回１表示可以将连接关闭掉,同事将本channel从EventLoop中删除
@@ -121,6 +124,8 @@ int channel :: handleWrite() {
         }
         sum+= ret ;
     }
+
+    std::cout << "发送字节数---------------------------------------------------->" << sum << std::endl ;
     //close(cliFd) ;
     input.bufferClear() ;
     return 1 ;

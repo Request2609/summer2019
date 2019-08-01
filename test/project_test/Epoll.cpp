@@ -51,6 +51,7 @@ int epOperation :: wait(eventLoop* loop, int64_t timeout) {
             loop->handleAccept() ;
             continue ;
         }
+
         //无论那种事件，否加入到活跃列表
         if(fd != listenFd) {
             channel* ch = loop->search(fd) ;

@@ -8,8 +8,32 @@ connection :: connection() {
     writeCallBack = nullptr ;
     timeoutCallBack = nullptr ;
     //创建一个套接字新连接
+    buffer.bufferClear() ;
+}
+
+
+void connection :: setConf(std::string ip, std::string port) {
+    readCallBack = nullptr ;
+    closeCallBack = nullptr ;
+    writeCallBack = nullptr ;
+    timeoutCallBack = nullptr ;
+    //创建一个套接字新连接
     channel_ = std :: make_shared<channel>() ;
-    sock = std :: make_shared<socketFd>() ;   
+    sock = std :: make_shared<socketFd>(ip, port) ;   
+    std::cout << sock->getListenSock() << std::endl ;
+    buffer.bufferClear() ;
+}
+
+//创建指定ip和端口的套接字
+connection :: connection(std::string ip, std::string port) {
+    readCallBack = nullptr ;
+    closeCallBack = nullptr ;
+    writeCallBack = nullptr ;
+    timeoutCallBack = nullptr ;
+    //创建一个套接字新连接
+    channel_ = std :: make_shared<channel>() ;
+    sock = std :: make_shared<socketFd>(ip.c_str(), port.c_str()) ;   
+    std::cout << sock->getListenSock() << std::endl ;
     buffer.bufferClear() ;
 }
 
@@ -35,6 +59,7 @@ void connection :: shutdown() {
 }
 
 void connection :: setReadCallBack(callBack cb) {
+
     channel_->setReadCallBack(cb) ;
     readCallBack = std::move(cb) ;
 }
@@ -62,7 +87,6 @@ int connection :: createListenFd(int port) {
     sock->bindAddress() ;
     sock->startListen() ;
     int fd = sock->getListenSock() ;
-    std::cout <<"监听描述符："<< fd << std::endl ;
     channel_->setFd(fd) ;
     return 1 ;
 } ;

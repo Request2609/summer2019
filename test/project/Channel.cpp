@@ -5,12 +5,12 @@ channel :: channel() {
     input.bufferClear() ;
     output.bufferClear() ;
     cliFd = -1 ;
+    len = 0 ;
 }
 
 //接收新连接
 int channel::handleAccept(int servFd) {
 
-    std :: cout << "接收新连接" << std::endl ;
     //设置监听套接字
     sock->setListenFd(servFd) ;
     //获取新客户端连接
@@ -56,12 +56,13 @@ int channel :: handleEvent() {
     }
     if(events|EPOLLOUT) {
         int ret = handleWrite() ;
-        if(ret < 0) {
-            
+        if(ret < 1) {
+            std::cout << __FILE__ << "     " << __LINE__ << std::endl ;   
         }
-        //关闭写事件
-        disableWrite() ;
-        updateChannel() ;
+        //返回０，将这个channel删除
+        else {
+            return 0 ;
+        }
     }
     return 1 ;
 }
@@ -73,21 +74,25 @@ int channel :: handleWrite() {
     int j = 0 ;
     bzero(buf, sizeof(buf)) ;
     int len = output.getWriteIndex() - output.getReadIndex() ;
+    int start = output.getReadIndex() ;
     //文件长度小于4096
     int sum = 0 ;
     if(len < 4096) {
-        for(int i=0; i< len; i++) {
+        for(int i=; i< len; i++) {
             buf[j] = output[i] ;
             j++ ;
         }
+
         buf[j] = '\0' ;
         std::cout << buf << std::endl ;
+        //写文件长度
         int ret = writen(cliFd, buf, sizeof(buf)) ;
         if(ret < 0) {
             std :: cout << __FILE__ << "     " << std:: endl ;
             return -1 ;
         }
         sum+= ret ;
+        std::cout << "发送字节数---------------------------------------------------->" << sum << std::endl ;
         //close(cliFd) ;
         input.bufferClear() ;
         //返回１表示可以将连接关闭掉,同事将本channel从EventLoop中删除
@@ -108,7 +113,7 @@ int channel :: handleWrite() {
             j = 0 ;
         }
         buf[j] = output[i] ;
-        output.retreiveBuffer() ;
+        output.moveRead() ;
         j++ ;
     }
     
@@ -120,6 +125,8 @@ int channel :: handleWrite() {
         }
         sum+= ret ;
     }
+
+    std::cout << "发送字节数---------------------------------------------------->" << sum << std::endl ;
     //close(cliFd) ;
     input.bufferClear() ;
     return 1 ;

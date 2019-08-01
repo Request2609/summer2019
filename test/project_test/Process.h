@@ -31,7 +31,7 @@ public :
     void sendNotFind(channel* chl) ;
     void readFile(channel* chl) ;
     string getFileType() ;
-    void processArgGet(string tmp, channel& channel_) ;
+    int processArgGet(string tmp, channel* chl) ;
     int getContentLength(string a, channel* chl) ;  
     int getSubmitInfo(int pos, int l, string& a, channel* chl) ;
 private:

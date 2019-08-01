@@ -14,11 +14,15 @@ class connection :
     public std::enable_shared_from_this<connection> {
 public:
     connection() ;
+    connection(std::string ip, std::string port) ;
     ~connection() ;
 public :
     //将套接字类和channel进行绑定
     typedef std :: function<void(channel* chl)> callBack ;
 public :
+    void createChannel() {channel_ = std :: make_shared<channel>() ;}
+    void createSock() { sock = std::make_shared<socketFd>(); }
+    void setConf(std::string ip, std::string port) ;
     std::shared_ptr<socketFd> getSock() { return sock ; }
     void setnoBlocking(int fd_) {sock->setNoBlocking(fd_) ;}
     void setCallBackToChannel(channel* channel_) ;
@@ -32,7 +36,6 @@ public :
     //创建指定端口号的监听套接字
     int createListenFd(int port) ;
     //创建指定IP和端口号的监听套接字
-    int createListenFd(const char*ip, const char* port) ;
     //监听套接字接收新连接
     int doAccept() ;
     //发送消息

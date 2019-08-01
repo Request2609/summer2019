@@ -23,7 +23,7 @@ int process :: requestHeader(channel* chl) {
         int ret =  tmp.find("?") ;
         //带参数的url，搜索功能
         if(ret != -1) { 
-            
+            processArgGet(tmp, chl) ;      
         }
         ret = messageSend(tmp, chl) ;
         return GET ;
@@ -41,6 +41,10 @@ int process :: requestHeader(channel* chl) {
     return 0  ;  
 }   
 
+int process :: processArgGet(string tmp, channel* chl) {
+    
+    return 1 ;
+}
 //获取请求的长度
 int process :: getContentLength(string a, channel* chl) {
     
@@ -73,17 +77,90 @@ int process :: getContentLength(string a, channel* chl) {
     //确定提交的数据
     long p = a.find("\r\n\r\n") ;
     //根据\r\n\r\n找ontent-length获取信息
-    int ret = getSubmitInfo(p+4, l, a, chl) ;
+    string info ;
+    int ret = getSubmitInfo(info, p+4, l, a, chl) ;
+    //post只提交登录功能
     if(ret == 1) {
         //处理post请求
+        int ret = doPost(chl, info) ;
+        if(ret == -1) {
+            return 1;
+        }
     }
     return l ;
 }
 
-int process :: getSubmitInfo(int pos, int l, string &a, channel* chl) {
+int process :: doPost(channel* chl, string& info) {
+    //处理post请求
+    //创建unix域套接字,进行进程间通信
+    unixSocket uSock ;
+    int fd = uSock.getFd() ;
+    logBuf buf ;
+    bzero(&buf, sizeof(buf)) ;
+    int index = info.find("name") ;
+    string name ;
+    for(int i=index+5; info[i] != '&'; i++) {
+        name+=info[i] ;
+    }
+    string password ;
+    index = info.find("password") ;
+    for(int i=index+9; info[i]!='&' ; i++) {
+        password+=info[i] ;
+    }
+    //1为登录服务登录
+    buf.type = 1 ;
+    strcpy(buf.name, name.c_str()) ;
+    strcpy(buf.path_, paths.c_str()) ;
+    strcpy(buf.version, version.c_str()) ;
+    strcpy(buf.password, password.c_str()) ;
+
+    //向unix服务器发送数据包
+    cout << "version:---------->" << version << endl ;
+    cout << "path:---------->" << paths << endl ;
+    cout << "name:---------->" << name << endl ;
+    cout << "password:------>" << password << endl ;
+    //向目标进程发送POST信息发送
+   // writen(fd, &buf, sizeof(buf)) ;
+    //通过使用unix域套接字将客户端套接字发送过去
+    int ret = sendSock(buf, fd, chl->getFd()) ;
+    if(ret < 0) {
+        cout << __FILE__ << "      " << __LINE__ << endl ;  
+        return -1 ;
+    }
+    return 1 ;
+}
+
+//发送产生post请求的客户端套接字
+int process :: sendSock(logBuf& buf, int fd, int connFd) {
+    struct iovec iov ;
+    struct msghdr msg ;
+    int cmsghdrLen = CMSG_LEN(sizeof(int)) ;
+
+    iov.iov_base = &buf ;
+    iov.iov_len = sizeof(buf) ;
+    msg.msg_iov = &iov ;
+    msg.msg_iovlen = 1 ;
+    msg.msg_name = NULL ;
+    msg.msg_namelen = 0 ;
+
+    std::shared_ptr<cmsghdr>msgptr = std::shared_ptr<cmsghdr>(new cmsghdr) ;
+    msgptr->cmsg_level = SOL_SOCKET ;
+    msgptr->cmsg_type = SCM_RIGHTS ;
+    msgptr->cmsg_len = cmsghdrLen ;
+    
+    msg.msg_control = &(*msgptr) ;
+    msg.msg_controllen = cmsghdrLen ;
+    *(int*)CMSG_DATA(&(*msgptr)) = connFd ;
+    if(sendmsg(fd, &msg, 0) < 0) {
+        cout << __FILE__ << "      " << __LINE__ << endl ;
+        return -1 ;
+    }
+    return 1 ;
+}   
+    
+int process :: getSubmitInfo(string& info, int pos, int l, string &a, channel* chl) {
     long len = a.length() ;
     long i = pos ;
-    string info ;
   //  Buffer * bf = chl->getReadBuffer() ;
    // bf->setReadIndex(pos) ;
     //移动读指针
@@ -99,7 +176,6 @@ int process :: getSubmitInfo(int pos, int l, string &a, channel* chl) {
     //则需要验证信息后给浏览器资源返回资源
     if(l == 0) {
         return 1 ;
-        cout <<"接收完成" << endl ;
     }
     else {
         return -1 ;
@@ -130,8 +206,7 @@ int process :: messageSend(const string& tmp, channel* chl) {
     //如果路径只包含“/”，发送初始化页面
     if(paths == "/") {
         struct stat st ;
-        
-        int ret = stat("test.html", &st) ;
+        int ret = stat("index.html", &st) ;
         if(ret < 0) {
             cout << __FILE__ << __LINE__ << endl ;
             return -1 ;
@@ -141,7 +216,8 @@ int process :: messageSend(const string& tmp, channel* chl) {
         long len = st.st_size ;
         responseHead(chl, "text/html", len, 200, "OK") ;
         //将文件信息全部写入度缓冲区
-        readFile("test.html", chl) ;
+        readFile("index.html", chl) ;
+        ret = sendFile(chl) ;
         //设置可写事件
         chl->enableWriting() ;
         //发送完数据关闭连接 
@@ -168,16 +244,84 @@ int process :: messageSend(const string& tmp, channel* chl) {
     }
     return 1 ;
 }
+
+//实在没发了，只能cp EPOLLOUT事件的代码了
+int process :: sendFile(channel* chl) {
+    
+    //发送文件
+    int cliFd = chl->getFd() ;
+    char buf[BUFLEN] ;
+    bzero(buf, sizeof(buf)) ;
+    Buffer* output = chl->getWriteBuffer() ;
+    long len = output->getWriteIndex() ;
+    if(len < BUFLEN) {
+        int i ;
+        for(i=0; i<len; i++) {
+            //顺便移动读指针
+            output->moveRead() ;
+            buf[i] = (*output)[i] ; 
+        }
+        buf[i] = i ;
+        //发送多少字节，返回多少字节
+        int ret = writen(cliFd, buf, sizeof(buf)) ;
+        if(ret == len) {
+            return 1 ;
+        }
+        else {
+            return -1 ;
+        }
+    }
+
+    else {
+        int sum = 0 ;
+        int j = 0 ;
+        int ret = 0 ;
+        //文件长度大于4096
+        for(int i=0; i<len; i++) {
+            if(j == 65534) {
+                buf[j] = '\0' ;
+                ret = writen(cliFd, buf, sizeof(buf)) ;
+                if(ret < 0) {
+                    std::cout << __FILE__ << "     "  << __LINE__ << std::endl ;  
+                    return -1 ;
+                } 
+                sum += ret ;
+                bzero(buf, sizeof(buf)) ;
+                j = 0 ;
+            }
+            buf[j] = (*output)[i] ;
+            //移动读指针
+            output->moveRead() ;
+            j++ ;
+        }
+
+        if(strlen(buf) > 0) {
+            ret = writen(cliFd, buf, sizeof(buf)) ;
+            if(ret < 0) {
+                std :: cout << __FILE__ << "      " << __LINE__ << std::endl ;
+                return -1 ;
+            }
+            sum+= ret ;
+        }
+        //发送的数据总长度小于文件长度，也就是读的数据大小
+        if(sum < len) {
+            return -1 ;
+        }
+    }
+    return 1 ;
+}
 //
 void process :: readFile(channel* chl) {
     string type = getFileType() ; 
     struct stat st ;
     int ret  = stat(paths.c_str(), &st) ;
     if(ret < 0) {
+        sendNotFind(chl) ;
         cout << __FILE__ << "    "<< __LINE__ << endl ;
         return ; 
     }
     long len = st.st_size;
+    chl->setLen(len+1) ;
     responseHead(chl, type, len, 200, "OK") ;
     readFile(paths.c_str(), chl) ;
 }
@@ -222,6 +366,9 @@ string process :: getFileType() {
         if(type == "ogg") {
             return "application/ogg" ;
         }
+        if(type == "css") {
+            return "text/css" ;
+        }
     }
     return "text/plain;charset=utf-8" ;
 }
@@ -230,6 +377,7 @@ string process :: getFileType() {
 void process :: sendNotFind(channel* chl) {
     struct stat st ;
     int ret = stat("404.html", &st) ;
+    cout <<"错误类型："<< strerror(errno) << endl ;
     if(ret < 0) {
         cout << __FILE__ << "       " << __LINE__ << endl ;
         return  ;
@@ -243,6 +391,7 @@ void process :: sendNotFind(channel* chl) {
 void process :: readFile(const char* file, channel* chl) {
     int fd = open(file, O_RDONLY)  ;
     if(fd < 0) {
+        sendNotFind(chl) ;
         cout << __FILE__ << "    " << __LINE__  << endl ;
         return  ;
     }
@@ -266,6 +415,7 @@ void process :: readFile(const char* file, channel* chl) {
         sum+= len ;
         bzero(buf, sizeof(buf)) ;
     }
+    chl->setLen(sum+1) ;
     close(fd) ;
 }
 

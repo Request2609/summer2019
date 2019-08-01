@@ -41,6 +41,9 @@ int process :: requestHeader(channel* chl) {
     return 0  ;  
 }   
 
+int process :: processArgGet(string tmp, channel* chl) {
+    return 1 ;
+}
 //获取请求的长度
 int process :: getContentLength(string a, channel* chl) {
     
@@ -111,6 +114,7 @@ void  process :: responseHead(channel* chl, string type, long len, int statusCod
     char buf[1024] ;
     //构造响应头
     string head ;
+    cout << "--------------------============>" << len << endl ;
     sprintf(buf, "%s %d %s\r\nContent-Type: %s\r\nConnection: Keep-Alive\r\nContent-Length:%ld\r\n\r\n",
             version.c_str(), statusCode, tip.c_str(), type.c_str(),len) ;
     //将信息存入输入缓冲区中    
@@ -130,8 +134,7 @@ int process :: messageSend(const string& tmp, channel* chl) {
     //如果路径只包含“/”，发送初始化页面
     if(paths == "/") {
         struct stat st ;
-        
-        int ret = stat("test.html", &st) ;
+        int ret = stat("index.html", &st) ;
         if(ret < 0) {
             cout << __FILE__ << __LINE__ << endl ;
             return -1 ;
@@ -141,7 +144,7 @@ int process :: messageSend(const string& tmp, channel* chl) {
         long len = st.st_size ;
         responseHead(chl, "text/html", len, 200, "OK") ;
         //将文件信息全部写入度缓冲区
-        readFile("test.html", chl) ;
+        readFile("index.html", chl) ;
         //设置可写事件
         chl->enableWriting() ;
         //发送完数据关闭连接 
@@ -174,11 +177,12 @@ void process :: readFile(channel* chl) {
     struct stat st ;
     int ret  = stat(paths.c_str(), &st) ;
     if(ret < 0) {
+        sendNotFind(chl) ;
         cout << __FILE__ << "    "<< __LINE__ << endl ;
         return ; 
     }
-
     long len = st.st_size;
+    chl->setLen(len+1) ;
     responseHead(chl, type, len, 200, "OK") ;
     readFile(paths.c_str(), chl) ;
 }
@@ -248,6 +252,7 @@ void process :: sendNotFind(channel* chl) {
 void process :: readFile(const char* file, channel* chl) {
     int fd = open(file, O_RDONLY)  ;
     if(fd < 0) {
+        sendNotFind(chl) ;
         cout << __FILE__ << "    " << __LINE__  << endl ;
         return  ;
     }
@@ -271,6 +276,7 @@ void process :: readFile(const char* file, channel* chl) {
         sum+= len ;
         bzero(buf, sizeof(buf)) ;
     }
+    chl->setLen(sum+1) ;
     close(fd) ;
 }
 

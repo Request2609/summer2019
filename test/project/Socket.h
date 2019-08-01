@@ -8,15 +8,41 @@
 #include<netinet/in.h>
 #include<fcntl.h>
 #include<stdlib.h>
+#include <sys/un.h>
 #include<string.h>
 #include<assert.h>
 #define BACKLOG 500
+#define PATH "/tmp/s"
+
+//创建Unix套接字,连接服务器
+class unixSocket {
+public :
+    unixSocket() {
+        un.sun_family = AF_UNIX ;
+        strcpy(un.sun_path, PATH) ;
+        len = sizeof(un.sun_family)+strlen(un.sun_path) ;
+        sockFd = socket(AF_UNIX, SOCK_STREAM, 0) ;
+        if(connect(sockFd, (sockaddr*)&un, len) < 0) {
+            std::cout << __FILE__ << "    " <<__LINE__ << std::endl ;
+            return ;
+        } 
+    }
+    ~unixSocket() {close(sockFd) ;}
+public :
+    int getFd() { return sockFd ; }
+public :
+    int len ;
+    int sockFd ;
+    sockaddr_un un ;
+} ;
+
+//创建网络套接字
 class socketFd
 {
 public:
     socketFd() ;
     socketFd(const char* port) ;
-    socketFd(const char* addr, const char*port);
+    socketFd(const std::string addr, const std::string port);
     socketFd(int port) ;
     ~socketFd() {
         close(connFd) ;

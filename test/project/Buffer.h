@@ -16,8 +16,7 @@ public:
     Buffer() ;
     ~Buffer() {}
 public :
-    void retreiveBuffer() { readIndex++ ; }
-    
+    void moveRead() { readIndex++ ; }
     void append(char i) ;
     void setCanProcess(int flag) { this->canProcess = flag ; }
     int getCanProcess() {return canProcess ;}
