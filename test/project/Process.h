@@ -1,8 +1,10 @@
 #ifndef _PROCESS_H_
 #define _PROCESS_H_
+#include <unistd.h>
 #include<iostream>
 #include<string>
 #include<sys/stat.h>
+#include "../FastCgi/fcgi.h"
 #include"Channel.h"
 #include"ReadWrite.h"
 #include "Socket.h"
@@ -31,9 +33,12 @@ struct logBuf {
 class process
 {
 public:
-    process():paths(""), method(-1), version("") {}
+    process():paths(""), method(-1), version(""), flag(0) {}
     ~process() {}
 public :
+    void fastCgi() ;
+    int getRequest(channel* chl, string& tmp) ;
+    int postRequest(string& tmp, channel* chl, string& bf) ;
     int isExist() ;
     int requestHeader(channel* channel_) ;
     int requestBody(channel* channel_) ;
@@ -44,17 +49,19 @@ public :
     void readFile(const char* file, channel* chl) ;
     void sendNotFind(channel* chl) ;
     void readFile(channel* chl) ;
-    int sendFile(channel*chl) ;
     string getFileType() ;
     int processArgGet(string tmp, channel* chl) ;
     int getContentLength(string a, channel* chl) ;  
     int getSubmitInfo(string& info, int pos, int l, string& a, channel* chl) ;
-    int doPost(channel* chl, string& info) ;
+    int doPost(string& info) ;
     int sendSock(logBuf& buf, int fd, int connFd) ;
+    string changeHtml(string& html) ;
 private :
     string post ;
     string paths ;
     int method ;
     string version ;
+    //是get请求的话，就设置为1
+    int flag ;
 };
 #endif

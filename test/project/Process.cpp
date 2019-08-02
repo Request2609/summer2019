@@ -1,5 +1,49 @@
 #include "Process.h"
 
+int process :: postRequest(string& tmp, channel* chl, string& bf) {
+        int ret = 0 ;
+        //获取到请求路径和版本号
+        getVersionPath(tmp) ;
+        ret = getContentLength(bf, chl) ;
+        if(ret == -5) {
+            sendNotFind(chl) ;
+            return POST ;
+        }
+        else {
+            paths = paths.c_str()+1 ;
+            readFile(chl) ;
+            flag = 1 ;
+            messageSend(tmp, chl) ; 
+            return POST ;
+        }
+    return 1 ;
+}
+
+string process :: changeHtml(string& tmp) {
+    ::FastCgi fc ;
+    string res ;
+    fc.setRequestId(1) ;
+    fc.startConnect() ;
+    fc.sendStartRequestRecord() ;
+    return res ;
+}
+
+int process :: getRequest(channel* chl, string& tmp) {
+        int ret =  tmp.find("?") ;
+        //带参数的url，搜索功能
+        if(ret != -1) { 
+            processArgGet(tmp, chl) ;      
+        }
+        //要是php的话，就得转成html然后给服务器发
+        //有php-fpm完成
+        if(tmp.find("php")) {
+            string file = changeHtml(tmp) ;
+            
+        }
+        ret = messageSend(tmp, chl) ;
+        return 1 ;
+}
+
 //获取请求头
 int process :: requestHeader(channel* chl) {
     Buffer* bf =chl->getReadBuffer() ;
@@ -7,7 +51,6 @@ int process :: requestHeader(channel* chl) {
     int readIndex = bf->getReadIndex() ;
     int writeIndex = bf->getWriteIndex() ;
     string a = bf->readBuffer(readIndex, writeIndex) ;
-    int end = a.find("\r\n\r\n") ;
     //将信息获取完成，再解析
     //解析请求头
     int index = 0 ;
@@ -20,20 +63,12 @@ int process :: requestHeader(channel* chl) {
     int ret = getMethod(tmp) ;
     //如果是GET方法，解析路径名
     if(ret == GET) {
-        int ret =  tmp.find("?") ;
-        //带参数的url，搜索功能
-        if(ret != -1) { 
-            processArgGet(tmp, chl) ;      
-        }
-        ret = messageSend(tmp, chl) ;
+        getRequest(chl, tmp) ;
         return GET ;
     }
     //如果是post请求，找出content_length
     if(ret == POST) {
-        //获取到请求路径和版本号
-        getVersionPath(tmp) ;
-        getContentLength(a, chl) ;
-        return POST ;
+        postRequest(tmp, chl, a) ;
     }
     if(ret == DEFAULT) {
         return DEFAULT ;
@@ -45,6 +80,7 @@ int process :: processArgGet(string tmp, channel* chl) {
     
     return 1 ;
 }
+
 //获取请求的长度
 int process :: getContentLength(string a, channel* chl) {
     
@@ -82,54 +118,37 @@ int process :: getContentLength(string a, channel* chl) {
     //post只提交登录功能
     if(ret == 1) {
         //处理post请求
-        int ret = doPost(chl, info) ;
-        if(ret == -1) {
-            return 1;
+        int s = doPost(info) ;
+        if(s == 1) {
+            return -5;
         }
     }
     return l ;
 }
 
-int process :: doPost(channel* chl, string& info) {
-    //处理post请求
-    //创建unix域套接字,进行进程间通信
-    unixSocket uSock ;
-    int fd = uSock.getFd() ;
-    logBuf buf ;
-    bzero(&buf, sizeof(buf)) ;
+int process :: doPost(string& info) {
     int index = info.find("name") ;
     string name ;
     for(int i=index+5; info[i] != '&'; i++) {
         name+=info[i] ;
     }
+
     string password ;
     index = info.find("password") ;
-    for(int i=index+9; info[i]!='&' ; i++) {
+    for(int i=index+9; i< (int)info.size() ; i++) {
         password+=info[i] ;
     }
-    //1为登录服务登录
-    buf.type = 1 ;
-    strcpy(buf.name, name.c_str()) ;
-    strcpy(buf.path_, paths.c_str()) ;
-    strcpy(buf.version, version.c_str()) ;
-    strcpy(buf.password, password.c_str()) ;
-
-    //向unix服务器发送数据包
-    cout << "version:---------->" << version << endl ;
-    cout << "path:---------->" << paths << endl ;
-    cout << "name:---------->" << name << endl ;
-    cout << "password:------>" << password << endl ;
-    //向目标进程发送POST信息发送
-   // writen(fd, &buf, sizeof(buf)) ;
-    //通过使用unix域套接字将客户端套接字发送过去
-    int ret = sendSock(buf, fd, chl->getFd()) ;
-    if(ret < 0) {
-        cout << __FILE__ << "      " << __LINE__ << endl ;  
-        return -1 ;
+    //验证post请求
+    if(name == "la" && password == "ha") {
+        cout <<"验证成功！"<< endl ;
+        return 0 ;
+    }
+    else {
+         return 1 ;
     }
     return 1 ;
 }
-
+/*
 //发送产生post请求的客户端套接字
 int process :: sendSock(logBuf& buf, int fd, int connFd) {
     struct iovec iov ;
@@ -156,13 +175,11 @@ int process :: sendSock(logBuf& buf, int fd, int connFd) {
         return -1 ;
     }
     return 1 ;
-}   
+}*/   
     
 int process :: getSubmitInfo(string& info, int pos, int l, string &a, channel* chl) {
     long len = a.length() ;
     long i = pos ;
-  //  Buffer * bf = chl->getReadBuffer() ;
-   // bf->setReadIndex(pos) ;
     //移动读指针
     while(i<len) {
         //往buf中添加信息
@@ -197,10 +214,12 @@ void  process :: responseHead(channel* chl, string type, long len, int statusCod
         input->append(buf[i]) ;
     }
 }   
+
 //处理get请求，发送响应头和
 int process :: messageSend(const string& tmp, channel* chl) {
     //找出现第一个空格的地方
-    getVersionPath(tmp) ;
+    if(flag == 0)
+        getVersionPath(tmp) ;
     //构造响应头
     //解析路径名
     //如果路径只包含“/”，发送初始化页面
@@ -211,13 +230,12 @@ int process :: messageSend(const string& tmp, channel* chl) {
             cout << __FILE__ << __LINE__ << endl ;
             return -1 ;
         }
-        
         //获取文件的大小
         long len = st.st_size ;
         responseHead(chl, "text/html", len, 200, "OK") ;
         //将文件信息全部写入度缓冲区
         readFile("index.html", chl) ;
-        ret = sendFile(chl) ;
+       // ret = sendFile(chl) ;
         //设置可写事件
         chl->enableWriting() ;
         //发送完数据关闭连接 
@@ -227,90 +245,33 @@ int process :: messageSend(const string& tmp, channel* chl) {
         }
         return 1 ;
     }
+    int ret = paths.find("php") ;
+    //请求的文件是php文件
+    if(ret != -1) {
+        
+    }   
     //将路径前面的/去掉
-    paths = paths.substr(1, paths.length()-1) ;
+    if(flag == 0)
+    paths = paths.c_str()+1 ;
     //获取资源类型,资源长度，状态码，提示语
-    int ret = isExist() ;
+    ret = isExist() ;
     chl->enableWriting() ;
     if(!ret) {
+        cout << "发送404" << endl ;
         //发送404页面
         sendNotFind(chl) ;   
         chl->updateChannel() ;
     }
     //请求其他的资源
     else {
+        cout << "资源存在！" << endl ;
         readFile(chl) ;
         chl->updateChannel() ;
     }
+    flag  = 0 ;
     return 1 ;
 }
 
-//实在没发了，只能cp EPOLLOUT事件的代码了
-int process :: sendFile(channel* chl) {
-    
-    //发送文件
-    int cliFd = chl->getFd() ;
-    char buf[BUFLEN] ;
-    bzero(buf, sizeof(buf)) ;
-    Buffer* output = chl->getWriteBuffer() ;
-    long len = output->getWriteIndex() ;
-    if(len < BUFLEN) {
-        int i ;
-        for(i=0; i<len; i++) {
-            //顺便移动读指针
-            output->moveRead() ;
-            buf[i] = (*output)[i] ; 
-        }
-        buf[i] = i ;
-        //发送多少字节，返回多少字节
-        int ret = writen(cliFd, buf, sizeof(buf)) ;
-        if(ret == len) {
-            return 1 ;
-        }
-        else {
-            return -1 ;
-        }
-    }
-
-    else {
-        int sum = 0 ;
-        int j = 0 ;
-        int ret = 0 ;
-        //文件长度大于4096
-        for(int i=0; i<len; i++) {
-            if(j == 65534) {
-                buf[j] = '\0' ;
-                ret = writen(cliFd, buf, sizeof(buf)) ;
-                if(ret < 0) {
-                    std::cout << __FILE__ << "     "  << __LINE__ << std::endl ;  
-                    return -1 ;
-                } 
-                sum += ret ;
-                bzero(buf, sizeof(buf)) ;
-                j = 0 ;
-            }
-            buf[j] = (*output)[i] ;
-            //移动读指针
-            output->moveRead() ;
-            j++ ;
-        }
-
-        if(strlen(buf) > 0) {
-            ret = writen(cliFd, buf, sizeof(buf)) ;
-            if(ret < 0) {
-                std :: cout << __FILE__ << "      " << __LINE__ << std::endl ;
-                return -1 ;
-            }
-            sum+= ret ;
-        }
-        //发送的数据总长度小于文件长度，也就是读的数据大小
-        if(sum < len) {
-            return -1 ;
-        }
-    }
-    return 1 ;
-}
-//
 void process :: readFile(channel* chl) {
     string type = getFileType() ; 
     struct stat st ;
@@ -331,7 +292,7 @@ string process :: getFileType() {
     string type ;
     //没找到的话
     if(index == -1) {
-        return "" ;
+        return "text/html" ;
     }
     else {
         int len = paths.length() ;
@@ -347,6 +308,9 @@ string process :: getFileType() {
         }
         if(type == "jpeg") {
             return "image/jpeg" ;
+        }
+        if(type == "pdf") {
+            return "application/pdf" ;
         }
         if(type == "gif") {
             return "image/gif" ;
@@ -390,6 +354,9 @@ void process :: sendNotFind(channel* chl) {
 //读文件
 void process :: readFile(const char* file, channel* chl) {
     int fd = open(file, O_RDONLY)  ;
+    char p[100] ;
+    getcwd(p, sizeof(p))  ;
+    cout << file << "     " <<p<< endl ;
     if(fd < 0) {
         sendNotFind(chl) ;
         cout << __FILE__ << "    " << __LINE__  << endl ;
@@ -415,6 +382,7 @@ void process :: readFile(const char* file, channel* chl) {
         sum+= len ;
         bzero(buf, sizeof(buf)) ;
     }
+    
     chl->setLen(sum+1) ;
     close(fd) ;
 }

@@ -12,25 +12,15 @@ void onRead(channel* chl) {
     //将信息获取完成，再解析
     //解析请求头
     process pro ;
-    int flag = chl->getReadBuffer()->getCanProcess() ;
-    if(flag == 1) {
-        flag =  pro.requestHeader(chl) ;    
-    }
-    //上面的程序执行完，可以将flag 置为1，继续解析请求体
-    if(flag == 0) {
-        
-    }
-    flag =  0 ;
+    chl->getReadBuffer()->getCanProcess() ;
+    pro.requestHeader(chl) ;    
 }
 
-void handle(int signo) {
-    return ;
-}
 
 int main(int argc, char** argv) {
     //切换到资源目录
-    int ret =  chdir("source1") ;
-    signal(SIGINT, handle) ;
+    int ret =  chdir("../www") ;
+    signal(SIGPIPE, SIG_IGN) ;
     if(ret < 0) {
         cout << __FILE__ << "      " << __LINE__ << endl ;
         return 0 ;

@@ -55,9 +55,11 @@ int channel :: handleEvent() {
         }
     }
     if(events|EPOLLOUT) {
+        //发送数据
         int ret = handleWrite() ;
         if(ret < 1) {
             std::cout << __FILE__ << "     " << __LINE__ << std::endl ;   
+            return -1 ;
         }
         //返回０，将这个channel删除
         else {
@@ -70,29 +72,27 @@ int channel :: handleEvent() {
 //执行写回调
 int channel :: handleWrite() {
     //写缓冲区
-    char buf[4096] ;
+    char buf[SIZE] ;
     int j = 0 ;
     bzero(buf, sizeof(buf)) ;
     int len = output.getWriteIndex() - output.getReadIndex() ;
-    int start = output.getReadIndex() ;
     //文件长度小于4096
     int sum = 0 ;
-    if(len < 4096) {
-        for(int i=; i< len; i++) {
+    if(len < SIZE) {
+        for(int i=0; i< len; i++) {
             buf[j] = output[i] ;
             j++ ;
         }
 
         buf[j] = '\0' ;
-        std::cout << buf << std::endl ;
         //写文件长度
         int ret = writen(cliFd, buf, sizeof(buf)) ;
         if(ret < 0) {
             std :: cout << __FILE__ << "     " << std:: endl ;
             return -1 ;
         }
+        
         sum+= ret ;
-        std::cout << "发送字节数---------------------------------------------------->" << sum << std::endl ;
         //close(cliFd) ;
         input.bufferClear() ;
         //返回１表示可以将连接关闭掉,同事将本channel从EventLoop中删除
@@ -101,11 +101,11 @@ int channel :: handleWrite() {
     int ret = 0 ;
     //文件长度大于4096
     for(int i=0; i<len; i++) {
-        if(j == 4095) {
+        if(j == SIZE) {
             buf[j] = '\0' ;
             ret = writen(cliFd, buf, sizeof(buf)) ;
             if(ret < 0) {
-                std::cout << __FILE__ << "     "  << __LINE__ << std::endl ;  
+                std::cout << __FILE__ << "     "  << __LINE__<<"      " <<strerror(errno) <<"       num:"<< errno<< std::endl ;  
                 return -1 ;
             } 
             sum += ret ;
@@ -125,9 +125,7 @@ int channel :: handleWrite() {
         }
         sum+= ret ;
     }
-
-    std::cout << "发送字节数---------------------------------------------------->" << sum << std::endl ;
-    //close(cliFd) ;
+    std::cout << "发送字节数！--"<< sum << std::endl ;
     input.bufferClear() ;
     return 1 ;
 }

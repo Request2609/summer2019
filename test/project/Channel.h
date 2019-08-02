@@ -6,7 +6,7 @@
 #include "Epoll.h"
 #include "Socket.h"
 #include "Buffer.h"
-
+#define SIZE 65535
 
 using namespace std :: placeholders ;
 enum {

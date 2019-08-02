@@ -8,7 +8,6 @@ socketFd :: socketFd() {
     }
 }
 
-
 socketFd :: socketFd(int port) {
 
     sockFd = socket(AF_INET, SOCK_STREAM, 0) ;
