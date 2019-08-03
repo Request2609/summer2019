@@ -1,9 +1,10 @@
 #include "Process.h"
 
 int process :: postRequest(string& tmp, channel* chl, string& bf) {
-        int ret = 0 ;
+        long ret = 0 ;
         //获取到请求路径和版本号
         getVersionPath(tmp) ;
+        //获取尾部长度
         ret = getContentLength(bf, chl) ;
         if(ret == -5) {
             sendNotFind(chl) ;
@@ -11,6 +12,27 @@ int process :: postRequest(string& tmp, channel* chl, string& bf) {
         }
         else {
             paths = paths.c_str()+1 ;
+            if(isExist() < 0) {
+                sendNotFind(chl) ;
+                return -1 ;
+            }
+            
+            int ret = paths.find("php") ;
+            //如果请求php文件
+            if(ret != -1) {
+                //传入contentlenth
+                string file = changePostHtml(chl->getWriteBuffer()->getPostPos(), bf) ; 
+                if(file == "") {
+                    sendNotFind(chl) ;
+                    return -1 ;
+                }
+                int res= sendCgiResult(chl, file) ;
+                if(res < 0) {
+                    sendNotFind(chl) ;
+                    return -1 ;
+                }
+                return 1 ;
+            }
             readFile(chl) ;
             flag = 1 ;
             messageSend(tmp, chl) ; 
@@ -19,13 +41,80 @@ int process :: postRequest(string& tmp, channel* chl, string& bf) {
     return 1 ;
 }
 
-string process :: changeHtml(string& tmp) {
+string process :: changePostHtml(long len, string& bf) {
+    //现根据contentlen找相应提交内容
+    string tmp = getSubmit(len, bf) ;
+    if(tmp == "") {
+        return "";
+    }
+    if(paths[0] == '/') {
+        paths = paths.c_str()+1 ;
+    }
+    ::FastCgi fc ;
+    fc.setRequestId(1) ;
+    fc.startConnect() ;
+    fc.sendStartRequestRecord() ;
+    long size = tmp.size() ;
+    char l[10] ;
+    sprintf(l, "%ld", size) ;
+    char p[1024] ;
+    //构造路径,绝对路径
+    sprintf(p, "/home/changke/summer2019/util/summer2019/test/www/%s", paths.c_str()) ;
+    fc.sendParams("SCRIPT_FILENAME", p) ;
+    //设置方法
+    fc.sendParams("REQUEST_METHOD", "POST") ;
+    fc.sendParams("CONTENT_LENGTH", l) ;
+    fc.sendParams("CONTENT_TYPE", "application/x-www-form-urlencoded") ;
+    fc.sendEndRequestRecord() ;
+    FCGI_Header h = fc.makeHeader(FCGI_STDIN, 1, size, 0) ;
+    fc.sendRequest(h) ;
+    fc.sendRequest(const_cast<char*>(tmp.c_str()), size) ;
+    FCGI_Header endHead = fc.makeHeader(FCGI_STDIN, 1, 0, 0) ;
+    fc.sendRequest(endHead) ;
+    string res = fc.readFromPhp() ;
+    int ret = res.find("<html>") ;
+    if(ret == -1) {
+        return "" ;
+    }
+    res = res.substr(ret, res.size()) ;
+    return res ;
+}
+
+string process :: getSubmit(long len, string& bf) {
+    string info ;
+    long index = bf.find("\r\n\r\n") ;
+    if(index == -1) {
+        return "" ;
+    }
+    index = index+4 ;
+    long l = bf.size() ;
+
+    for(int i=index; i<l; i++) {
+        info+=bf[i] ;
+        len -- ;
+        if(len == 0) {
+            break ;
+        }
+    }
+    return info ;
+}
+
+string process :: changeHtml() {
     ::FastCgi fc ;
     string res ;
     fc.setRequestId(1) ;
     fc.startConnect() ;
     fc.sendStartRequestRecord() ;
-    return res ;
+    char buff[1024] ;
+    //这里必须是资源的绝对路径~~~~~~
+    sprintf(buff, "/home/changke/summer2019/util/summer2019/test/www/%s", paths.c_str()) ;
+    fc.sendParams("SCRIPT_FILENAME", buff) ;
+    fc.sendParams("REQUEST_METHOD", "GET") ;
+    fc.sendEndRequestRecord() ;
+    string a =  fc.readFromPhp() ;
+    int index = a.find("<html>") ;
+    a = a.substr(index, a.size()) ;
+    return a ;
 }
 
 int process :: getRequest(channel* chl, string& tmp) {
@@ -36,11 +125,45 @@ int process :: getRequest(channel* chl, string& tmp) {
         }
         //要是php的话，就得转成html然后给服务器发
         //有php-fpm完成
-        if(tmp.find("php")) {
-            string file = changeHtml(tmp) ;
-            
+        getVersionPath(tmp) ;
+        ret = paths.find("php") ;
+        if(ret != -1) {
+            if(paths[0] == '/') {
+                paths = paths.c_str()+1 ;
+            }
+
+            string file = changeHtml() ;
+            if(isExist() < 0) {
+                sendNotFind(chl) ;
+                return -1;
+            }
+            ///构造响应头
+            if(sendCgiResult(chl, file) < 0) {
+                sendNotFind(chl) ;
+                return -1 ;
+            }
+            return 1 ;
         }
-        ret = messageSend(tmp, chl) ;
+        else {
+            flag = 1  ;
+            ret = messageSend(tmp, chl) ;
+        }
+        return 1 ;
+}
+
+int process:: sendCgiResult(channel* chl, string res) {
+            Buffer* bf =  chl->getWriteBuffer() ;
+            long len = res.size() ;
+            responseHead(chl, "text/html", len, OK, "OK") ;
+            for(int i=0; i<len; i++) {
+                bf->append(res[i]) ;
+            }
+            chl->enableWriting() ;
+            int ret = chl->updateChannel() ;
+            if(ret < 0) {
+                cout << __FILE__ << "      " << __LINE__ << endl ;
+                return -1 ;
+            }
         return 1 ;
 }
 
@@ -110,6 +233,10 @@ int process :: getContentLength(string a, channel* chl) {
         l = atoi(len.c_str()) ;
         chl->getWriteBuffer()->setPostPos(l) ;
     }
+    int r = paths.find(".php") ;
+    if(r != -1) {
+        return 0 ;
+    }
     //确定提交的数据
     long p = a.find("\r\n\r\n") ;
     //根据\r\n\r\n找ontent-length获取信息
@@ -140,7 +267,6 @@ int process :: doPost(string& info) {
     }
     //验证post请求
     if(name == "la" && password == "ha") {
-        cout <<"验证成功！"<< endl ;
         return 0 ;
     }
     else {
@@ -148,35 +274,7 @@ int process :: doPost(string& info) {
     }
     return 1 ;
 }
-/*
-//发送产生post请求的客户端套接字
-int process :: sendSock(logBuf& buf, int fd, int connFd) {
-    struct iovec iov ;
-    struct msghdr msg ;
-    int cmsghdrLen = CMSG_LEN(sizeof(int)) ;
 
-    iov.iov_base = &buf ;
-    iov.iov_len = sizeof(buf) ;
-    msg.msg_iov = &iov ;
-    msg.msg_iovlen = 1 ;
-    msg.msg_name = NULL ;
-    msg.msg_namelen = 0 ;
-
-    std::shared_ptr<cmsghdr>msgptr = std::shared_ptr<cmsghdr>(new cmsghdr) ;
-    msgptr->cmsg_level = SOL_SOCKET ;
-    msgptr->cmsg_type = SCM_RIGHTS ;
-    msgptr->cmsg_len = cmsghdrLen ;
-    
-    msg.msg_control = &(*msgptr) ;
-    msg.msg_controllen = cmsghdrLen ;
-    *(int*)CMSG_DATA(&(*msgptr)) = connFd ;
-    if(sendmsg(fd, &msg, 0) < 0) {
-        cout << __FILE__ << "      " << __LINE__ << endl ;
-        return -1 ;
-    }
-    return 1 ;
-}*/   
-    
 int process :: getSubmitInfo(string& info, int pos, int l, string &a, channel* chl) {
     long len = a.length() ;
     long i = pos ;
@@ -225,16 +323,18 @@ int process :: messageSend(const string& tmp, channel* chl) {
     //如果路径只包含“/”，发送初始化页面
     if(paths == "/") {
         struct stat st ;
-        int ret = stat("index.html", &st) ;
+        int ret = stat(DEFAULT_PATH, &st) ;
         if(ret < 0) {
             cout << __FILE__ << __LINE__ << endl ;
             return -1 ;
         }
         //获取文件的大小
         long len = st.st_size ;
-        responseHead(chl, "text/html", len, 200, "OK") ;
+        paths = DEFAULT_PATH ;
+        string type = getFileType() ;
+        responseHead(chl, type, len, 200, "OK") ;
         //将文件信息全部写入度缓冲区
-        readFile("index.html", chl) ;
+        readFile(DEFAULT_PATH, chl) ;
        // ret = sendFile(chl) ;
         //设置可写事件
         chl->enableWriting() ;
@@ -245,26 +345,19 @@ int process :: messageSend(const string& tmp, channel* chl) {
         }
         return 1 ;
     }
-    int ret = paths.find("php") ;
-    //请求的文件是php文件
-    if(ret != -1) {
-        
-    }   
     //将路径前面的/去掉
-    if(flag == 0)
+    if(paths[0] == '/')
     paths = paths.c_str()+1 ;
     //获取资源类型,资源长度，状态码，提示语
-    ret = isExist() ;
+    int ret = isExist() ;
     chl->enableWriting() ;
     if(!ret) {
-        cout << "发送404" << endl ;
         //发送404页面
         sendNotFind(chl) ;   
         chl->updateChannel() ;
     }
     //请求其他的资源
     else {
-        cout << "资源存在！" << endl ;
         readFile(chl) ;
         chl->updateChannel() ;
     }
@@ -340,8 +433,8 @@ string process :: getFileType() {
 //资源不可获取
 void process :: sendNotFind(channel* chl) {
     struct stat st ;
+    chl->getWriteBuffer()->bufferClear() ;
     int ret = stat("404.html", &st) ;
-    cout <<"错误类型："<< strerror(errno) << endl ;
     if(ret < 0) {
         cout << __FILE__ << "       " << __LINE__ << endl ;
         return  ;
@@ -356,7 +449,6 @@ void process :: readFile(const char* file, channel* chl) {
     int fd = open(file, O_RDONLY)  ;
     char p[100] ;
     getcwd(p, sizeof(p))  ;
-    cout << file << "     " <<p<< endl ;
     if(fd < 0) {
         sendNotFind(chl) ;
         cout << __FILE__ << "    " << __LINE__  << endl ;

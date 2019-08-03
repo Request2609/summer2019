@@ -7,8 +7,6 @@
     $b=$_REQUEST["b"];
     $c=$_REQUEST["c"];
     $d=$_REQUEST["d"];
-    $name=$_REQUEST["name"] ;
-    echo $name ;
     $result =($a-$b)+($c*$d);
     echo  $a.' - '.$b. ' + ' .$c. ' * ' .$d. " = $result"
 ?>

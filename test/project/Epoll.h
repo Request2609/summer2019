@@ -9,7 +9,6 @@ class epOperation {
 public :
     epOperation():fds(0),nfds(200) {
         epFd = epoll_create(1) ;
-        std::cout <<"EPOLLFD:" << epFd << std::endl ;
        //设置了epfds的capacity大小
         epFds.reserve(nfds) ;
     }   

@@ -26,11 +26,17 @@ tcpServer :: tcpServer(eventLoop* loop) {
     this->loop = loop ;
     return ;       
 }
+
 //用户只需要设置好conn的各种回调函数
 //tcpServer
 void tcpServer :: addNewConnection(connection* conn) {
     this->conn = conn ;
+    std::shared_ptr<socketFd> sock = this->conn->getSock() ;
     //创建监听套接字，并设置好内部channel类
+    if(sock->getBindAddr() == 1) {
+        this->conn->createListenFd(&(*sock)) ;
+        return ;
+    }
     this->conn->createListenFd(port) ;
 }
 //开始

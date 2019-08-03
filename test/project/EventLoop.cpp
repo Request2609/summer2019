@@ -8,7 +8,6 @@ eventLoop :: eventLoop() {
 
 int eventLoop :: clearCloseChannel(std::vector<channel>&list_) {
     //从epoll中删除套接字
-    std::cout <<"即将删除，目前epoll中监听的文件描述符个数：" << clList.size() << std:: endl ;
     std::map<int, channel>::iterator iter ;
     for(channel chl:list_) {
         int fds = std::move(chl.getFd()) ;
@@ -21,7 +20,6 @@ int eventLoop :: clearCloseChannel(std::vector<channel>&list_) {
         }
         clList.erase(iter) ;
     }
-    std::cout <<"目前epoll中监听的文件描述符个数：" << clList.size() << std:: endl ;
     return 1 ;
 }
 
@@ -44,7 +42,6 @@ void eventLoop :: loop() {
             //有事件发生
             for(channel channel: activeChannels) {
                 //处理事件
-                std :: cout << "发生时间的文件描述符："<<channel.getFd() << std::endl ;
                 int n = channel.handleEvent() ;
                 //将已经关闭的连接，收集起来
                 if(n == 0) {
@@ -79,7 +76,6 @@ void eventLoop :: addConnection(connection* con) {
     std::shared_ptr<channel> channel_ = conn->getChannel() ;
     int fd = channel_->getFd() ;
     servFd = fd ;
-    std::cout << fd << std::endl ;
     channel_->setEpFd(epPtr->getEpFd()) ;
     //将这个服务器监听套接字加入到epoll中，只负责监听可读事件，LT模式
     channel_->setEvents(READ) ;
@@ -101,7 +97,6 @@ channel* eventLoop :: search(int fd) {
 
 //接收连接并添加channel
 void eventLoop :: handleAccept() {
-    
     channel tmp;
     tmp.setSock(conn->getSock()) ;
     //创建新连接

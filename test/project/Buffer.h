@@ -23,7 +23,6 @@ public :
     std :: string readBuffer(int start, int end) ;
     int retreiveBuffer(int start, int end) ;
     int retreiveBuffer(int n) ;
-    void setPostPos() {  }
     void bufferClear() ;
     //传入目标的描述符，读取数据
     int readBuffer(int fd) ;

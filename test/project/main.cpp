@@ -44,11 +44,9 @@ int main(int argc, char** argv) {
         conn.createChannel() ;
     }
 
-    if(conn.getSock() == nullptr) {
-        cout <<  "haidhohd " << endl ;
-    }
     if(argc == 3) {
-        server.create(&loop) ;
+        server.create(&loop);
+        //设置好了ip和端
         conn.setConf(argv[1], argv[2]) ;
     }
     

@@ -72,7 +72,11 @@ public :
     int setNoBlocking(int fd) ;
     //关闭读端
     void shutdownWrite(int fd) ;
+    //是否绑定过地址
+    void setBindAddr(int i) { isBindAddr = i; }
+    int getBindAddr() { return isBindAddr ; }
 private:
+    int isBindAddr = 0 ;
     int sockFd = -1 ;
     int connFd =  -1 ;
     struct sockaddr_in sockAddr ;

@@ -20,6 +20,7 @@ public :
     //将套接字类和channel进行绑定
     typedef std :: function<void(channel* chl)> callBack ;
 public :
+    void createListenFd(socketFd* sock) ;
     void createChannel() {channel_ = std :: make_shared<channel>() ;}
     void createSock() { sock = std::make_shared<socketFd>(); }
     void setConf(std::string ip, std::string port) ;

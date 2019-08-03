@@ -4,10 +4,11 @@
 #include<iostream>
 #include<string>
 #include<sys/stat.h>
-#include "../FastCgi/fcgi.h"
+#include "Fcgi.h"
 #include"Channel.h"
 #include"ReadWrite.h"
 #include "Socket.h"
+#define DEFAULT_PATH "test.pdf"
 #define BUFLEN 65535 
 
 using namespace std ;
@@ -55,7 +56,10 @@ public :
     int getSubmitInfo(string& info, int pos, int l, string& a, channel* chl) ;
     int doPost(string& info) ;
     int sendSock(logBuf& buf, int fd, int connFd) ;
-    string changeHtml(string& html) ;
+    string changeHtml() ;
+    string changePostHtml(long len, string&bf) ;
+    string getSubmit(long len, string&bf) ;
+    int sendCgiResult(channel * chl, string res) ;
 private :
     string post ;
     string paths ;

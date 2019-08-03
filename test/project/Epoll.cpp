@@ -4,7 +4,6 @@ void epOperation :: add(int fd, int events) {
     struct epoll_event ev ;
     ev.data.fd = fd ;
     ev.events = events ;
-
     if(epoll_ctl(epFd, EPOLL_CTL_ADD, fd, &ev) < 0) {
         std :: cout << __FILE__ << "   " << __LINE__ << std :: endl ;
         return ;
@@ -37,16 +36,14 @@ void epOperation :: del(int fd) {
 
 //将活跃的事件全加入到clList
 int epOperation :: wait(eventLoop* loop, int64_t timeout) {
-
+    
     int listenFd = loop->getListenFd() ; 
     int eventNum = epoll_wait(epFd, &epFds[0], epFds.capacity(), timeout) ;
     //将活跃的事件全部加入到事件列表中
     for(int i=0; i<eventNum; i++) {
         int fd = epFds[i].data.fd ;
-        
         //要是还未注册的事件
         if(fd == listenFd) {
-            std::cout <<"监听描述符：" << listenFd<<std::endl ;
             //接收并注册该连接
             loop->handleAccept() ;
             continue ;

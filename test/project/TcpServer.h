@@ -37,6 +37,7 @@ private :
     eventLoop* loop ;
     //连接名称
     int port ;
+    std::string addr ;
     //线程数量
     int threadNum ;
     //线程池

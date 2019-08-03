@@ -91,7 +91,6 @@ int channel :: handleWrite() {
             std :: cout << __FILE__ << "     " << std:: endl ;
             return -1 ;
         }
-        
         sum+= ret ;
         //close(cliFd) ;
         input.bufferClear() ;
@@ -125,7 +124,6 @@ int channel :: handleWrite() {
         }
         sum+= ret ;
     }
-    std::cout << "发送字节数！--"<< sum << std::endl ;
     input.bufferClear() ;
     return 1 ;
 }

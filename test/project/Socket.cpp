@@ -40,11 +40,14 @@ socketFd :: socketFd(const std::string addr, const std::string port) {
         std::cout<<__FILE__<<__LINE__<<std::endl; ;
         return ;
     }
-
     bzero(&sockAddr, sizeof(sockAddr)) ;
     sockAddr.sin_family = AF_INET ;
     sockAddr.sin_port = htons(atoi(port.c_str())) ;
     sockAddr.sin_addr.s_addr = inet_addr(addr.c_str()) ;
+    if(bind(sockFd, (struct sockaddr*)&sockAddr, sizeof(sockAddr)) < 0) {
+        std::cout << __FILE__ << "       " <<__LINE__ <<std::endl ;
+        return ;
+    }
 }   
 
 int socketFd :: setAddr(int port) {
@@ -59,7 +62,6 @@ int socketFd :: setAddr(int port) {
 int socketFd :: setAddr(const char* ip, const char* port) {
     assert(ip != NULL) ;
     assert(port != NULL) ;
-
     bzero(&sockAddr, sizeof(sockAddr)) ;
     sockAddr.sin_family = AF_INET ;
     sockAddr.sin_port = htons(atoi(port)) ;
@@ -123,7 +125,6 @@ int socketFd :: acceptSocket() {
         std::cout<<__FILE__<<__LINE__<<std::endl; ;
         return -1 ;
     }
-    std::cout << "接受的connfd: " << connFd << std::endl ;
     this -> connFd = connFd ;
     return connFd ;
 }
@@ -138,7 +139,6 @@ int socketFd :: startListen() {
 }
 
 int socketFd :: setNoBlocking(int fd) {
-    std::cout << fd << std::endl ;
     int old = fcntl(fd, F_GETFL, 0) ;
     assert(old != -1) ;
     int newA = old|O_NONBLOCK ;
