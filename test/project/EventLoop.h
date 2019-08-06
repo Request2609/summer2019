@@ -2,8 +2,12 @@
 #include <memory>
 #include <atomic>
 #include <iostream>
+#include <functional>
+#include <mutex>
+#include <thread>
 #include <map>
 #include "Channel.h"
+#include "ThreadPool.h"
 #include "Epoll.h"
 #include "Connection.h"
 
@@ -25,15 +29,20 @@ public :
     void addClList(int fd, channel& channel_) ;
     int fillChannelList(channel*chl) ;
     void handleAccept() ;
+    void setPool(threadPool* pl) { this->pool = pl ; }
     int clearCloseChannel(std::vector<channel>&list_) ;
+    int clearCloseChannel(channel chl) ;
+    int commitEvent(channel chl) ;
 private:
+    threadPool* pool ;
     int servFd  = -1 ;
     connection* conn ;
     //reactor in thread
     //一个eventLoop一个epoll
     std :: shared_ptr<epOperation> epPtr ;
     //活跃事件列表
-    std :: vector<channel> activeChannels;
+    //多个线程共享资源
+    std :: queue<channel> activeChannels;
     //该eventLoop对应的监听套接字封装
     //退出标志
     bool quit ;

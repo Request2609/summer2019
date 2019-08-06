@@ -16,7 +16,6 @@ enum {
     ERROR = EPOLLERR,
     ET = EPOLLET 
 } ;
-
 //事件分发
 class channel
 {
@@ -69,8 +68,8 @@ private :
     long len ;
     //管理channel描述符对象的epoll句柄
     int epFd ;
-    int flag = 0 ;
     //设置一个标志，是否要继续读
+    int flag = 0 ;
     //感兴趣的事件
     int events ;
     //保存监听套接字信息
@@ -89,6 +88,7 @@ private :
     Buffer input ;
     //度缓冲区
     Buffer output ;
+
     //要是监听套接字的话，就是监听套接字的文件描述符
     //否则就是目标客户端的fd
     int cliFd ;

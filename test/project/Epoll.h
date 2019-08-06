@@ -18,8 +18,10 @@ public :
     int  wait(eventLoop* loop, int64_t timeout) ;
     void add(int fd, int events) ;
     void change(int fd, int events) ;
+    void setMutex(std::mutex* mut) {this->mute = mut ;} 
     void del(int fd) ;
 private :
+    std::mutex* mute ;
     int epFd ;
     //帮助更新epoll中的事件数量
     int fds ;

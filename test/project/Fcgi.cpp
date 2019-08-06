@@ -58,6 +58,7 @@ FCGI_Header FastCgi::makeHeader(int type,int requestId,int contentLength,int pad
 
 FCGI_BeginRequestBody FastCgi::makeBeginRequestBody(int role,int keepConnection)
 {
+
     FCGI_BeginRequestBody body;
 
     body.roleB1 = (unsigned char)((role >> 8) & 0xff);//俩个字节保存我们期望php-fpm扮演的角色
