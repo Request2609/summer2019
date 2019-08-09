@@ -1,0 +1,15 @@
+#include <iostream>
+#include <list>
+#include<algorithm>
+//插入迭代器
+using namespace std ;
+int main()
+{
+    list<int>lst = {1,2,3,4} ;
+    list<int>lst1, lst2 ;
+    copy(lst.cbegin(), lst.cend(), front_inserter(lst1)) ;
+    list<int>lst ;
+    
+    return 0;
+}
+
