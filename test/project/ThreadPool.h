@@ -11,14 +11,12 @@
 
 class threadPool {
 public:
-    threadPool() {} 
     threadPool(unsigned short size) ;
     ~threadPool() ;
 public :
     template<class F, class... Args> 
         auto commit(F&& f, Args&&... args)-> std :: future<decltype(f(args...))> ;
 
-    void print() { printf("hhhhh") ;}
     int count() ;
 private:    
     //定义线程中的函数类型

@@ -7,6 +7,7 @@
 #include "Buffer.h"
 #include "EventLoop.h"
 #include "Channel.h"
+#include "ThreadPool.h"
 
 class channel ;
 //封装TCP连接
@@ -20,6 +21,7 @@ public :
     //将套接字类和channel进行绑定
     typedef std :: function<void(channel* chl)> callBack ;
 public :
+    void setPool(threadPool*p) { this->pool = p ; }
     void createListenFd(socketFd* sock) ;
     void createChannel() {channel_ = std :: make_shared<channel>() ;}
     void createSock() { sock = std::make_shared<socketFd>(); }
@@ -32,9 +34,11 @@ public :
     void setCloseCallBack(callBack cb) ;
     void setReadCallBack(callBack cb) ;
     void setTimeoutCallBack(callBack cb) ;
+    threadPool* getPool() { return pool ; }
 public :
     //创建监听套接字
     //创建指定端口号的监听套接字
+    threadPool * pool ;
     int createListenFd(int port) ;
     //创建指定IP和端口号的监听套接字
     //监听套接字接收新连接
@@ -47,6 +51,8 @@ public :
     std::shared_ptr<channel>  getChannel() {
         return (this->channel_) ;
     }
+    void setMutex(std::mutex* mute) { this->mute = mute ; }
+    std::mutex* getMutex() { return mute ;}
 private :
     //三种回调
     callBack readCallBack ;
@@ -60,6 +66,7 @@ private :
     //封装监听套接字或者连接套接字类和channel对象的类
     //监听套接字
     std::shared_ptr<socketFd> sock ;
+    std::mutex * mute ;
     //该连接的套接字
     int fd = -1;
 } ;

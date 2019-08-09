@@ -44,12 +44,18 @@ std::vector<channel> epOperation :: wait(eventLoop* loop, int64_t timeout) {
         int fd = epFds[i].data.fd ;
         //要是还未注册的事件
         if(fd == listenFd) {
+            printf("接收新连接：%d\n",fd) ;
             //接收并注册该连接
             //将新连接注册到epoll中,并产生新的loop事件循环
             chl.emplace_back(loop->handleAccept()) ;
         }
+<<<<<<< HEAD
 /*
         //无论那种事件，否加入到活跃列表
+=======
+
+        //无论那种事件，加入到活跃列表
+>>>>>>> 7f5767318cdf45305c3acc000c256e83bf9e4903
         if(fd != listenFd) {
             channel* ch = loop->search(fd) ;
             if(ch == NULL) {
@@ -57,6 +63,7 @@ std::vector<channel> epOperation :: wait(eventLoop* loop, int64_t timeout) {
                 return -1;
             }
             else {
+                //添加事件，还没进线程，不加锁:
                 loop->fillChannelList(ch) ;   
             }
         }*/

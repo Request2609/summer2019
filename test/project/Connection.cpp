@@ -86,7 +86,6 @@ void connection :: setTimeoutCallBack(callBack cb) {
 void connection :: createListenFd(socketFd* sock) {
     sock->setNoBlocking(sock->getListenSock());
     sock->startListen() ;
-    sock->setReuseAddr() ;
     int fd = sock->getListenSock() ;
     channel_->setFd(fd) ;
 }

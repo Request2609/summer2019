@@ -49,7 +49,9 @@ int main(int argc, char** argv) {
         //设置好了ip和端
         conn.setConf(argv[1], argv[2]) ;
     }
-    
+
+    //server设置线程数量，启动线程池
+    server.createPool(2) ;
     //设置新连接的回调函数
     conn.setReadCallBack(std::bind(onRead, placeholders::_1)) ;
     //将新建的连接加入到loop中

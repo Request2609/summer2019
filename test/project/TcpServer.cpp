@@ -13,6 +13,7 @@ void tcpServer :: create(eventLoop* loop) {
     this->loop = loop  ;
 }
 
+
 void tcpServer :: create(eventLoop* loop, std::string  port) {
     //获取用户传进来的eventLoop
     this->loop = loop ;
@@ -34,14 +35,20 @@ void tcpServer :: addNewConnection(connection* conn) {
     std::shared_ptr<socketFd> sock = this->conn->getSock() ;
     //创建监听套接字，并设置好内部channel类
     if(sock->getBindAddr() == 1) {
+        //设置线程池
+        this->conn->setMutex(&mute) ;
+        this->conn->setPool(&(*pool)) ;
         this->conn->createListenFd(&(*sock)) ;
         return ;
     }
+    this->conn->setMutex(&mute) ;
+    this->conn->setPool(&(*pool)) ;
     this->conn->createListenFd(port) ;
 }
+
 //开始
 void tcpServer :: start() {
-    //将新连接加入到loop中，暂时单线程，可以开线程跑
+    //将连接加入到loop中，暂时单线程，可以开线程跑
     loop->addConnection(conn) ;
 }
 

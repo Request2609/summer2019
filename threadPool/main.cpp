@@ -15,7 +15,12 @@ struct gfunc{
         std::cout << n << std::endl ;
         return n ;
     }
+    int func() {
+        printf("hello " ) ;
+        return 1 ;
+    }
 } ;
+
 int func1(std :: string a, int b) {
     std :: cout << "字符串的值为:" << a << "    整型值为：" << b << std :: endl ;  
     return 0 ;
@@ -29,7 +34,8 @@ int main()
         //往队列中加入任务
         std :: future<void> ff = pool.commit(func, 1);       
         std :: future<int> ff1 = pool.commit(func2, 1,2) ;
-        std :: future<int> ff2 = pool.commit(gfunc{},2) ;     
+        std :: future<in> ff2 = pool.commit(gfunc{},2) ;
+        pool.commit(gfunc::func) ;
         printf("ff:") ;
         ff.get();
         printf("ff1:") ;
