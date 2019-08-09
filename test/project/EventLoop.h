@@ -24,8 +24,9 @@ public :
     void addConnection(connection* con) ;
     void addClList(int fd, channel& channel_) ;
     int fillChannelList(channel*chl) ;
-    void handleAccept() ;
+    channel handleAccept() ;
     int clearCloseChannel(std::vector<channel>&list_) ;
+    void loop(epOperation ep, channel chl) ; 
 private:
     int servFd  = -1 ;
     connection* conn ;

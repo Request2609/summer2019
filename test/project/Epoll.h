@@ -15,10 +15,11 @@ public :
     ~epOperation() { close(epFd) ; }
 public :
     int getEpFd() {return epFd ;}
-    int  wait(eventLoop* loop, int64_t timeout) ;
+    std::vector<channel>  wait(eventLoop* loop, int64_t timeout) ;
     void add(int fd, int events) ;
     void change(int fd, int events) ;
     void del(int fd) ;
+    int poll() ;
 private :
     int epFd ;
     //帮助更新epoll中的事件数量

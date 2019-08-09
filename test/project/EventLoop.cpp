@@ -30,8 +30,11 @@ void eventLoop :: loop() {
     epPtr->add(servFd, events) ;
     while(!quit) {
         //等待事件
-        int ret = epPtr->wait(this, -1) ;
-        if(ret < 0) {
+        std::vector<channel>chl = epPtr->wait(this, -1) ;
+        epOperation ep ;
+        
+        //将事件列表加入到线程池中
+    /*    if(ret < 0) {
             quit = true ;
         }
         //epoll返回０，没有活跃事件
@@ -59,9 +62,18 @@ void eventLoop :: loop() {
             //清空活跃事件集合
             activeChannels.clear() ;
         }
-    }   
+    } */  
 }
-
+/*
+void eventLoop::loop() {
+    int quit = true ;
+    int fd = chl.getFd() ;
+    while(quit) {
+        int ret = ep.poll() ;
+           
+    }
+}
+*/
 //将活跃的事件加入到活跃事件表中
 int eventLoop :: fillChannelList(channel* chl) {
    activeChannels.push_back(*chl) ;
@@ -95,8 +107,8 @@ channel* eventLoop :: search(int fd) {
     }
 } 
 
-//接收连接并添加channel
-void eventLoop :: handleAccept() {
+//接收连接并添加channel，新建channel
+channel eventLoop :: handleAccept() {
     channel tmp;
     tmp.setSock(conn->getSock()) ;
     //创建新连接
@@ -108,6 +120,7 @@ void eventLoop :: handleAccept() {
     tmp.setEpFd(epPtr->getEpFd()) ;
     epPtr->add(conFd, READ) ;
     conn->setCallBackToChannel(&tmp) ;
+    return tmp ;
     //将channel加入到当前loop的列表中
-    clList[conFd] = tmp ;
+   // clList[conFd] = tmp ;
 }
