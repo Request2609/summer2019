@@ -49,7 +49,6 @@ std::vector<channel> epOperation :: wait(eventLoop* loop, int64_t timeout) {
             //将新连接注册到epoll中,并产生新的loop事件循环
             chl.emplace_back(loop->handleAccept()) ;
         }
-<<<<<<< HEAD
 /*
         //无论那种事件，否加入到活跃列表
 =======

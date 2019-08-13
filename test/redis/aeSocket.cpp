@@ -11,7 +11,7 @@ int aeSocket :: anetCreateSocket() {
     if(ret < 0) {
         return -1 ;
     }   
-    return 1;
+    return sockFd ; 
 }
 
 int aeSocket :: setReuseAddr() {
@@ -24,19 +24,18 @@ int aeSocket :: setReuseAddr() {
     return  1 ;
 }
 
-int aeSocket :: setNoBlocking() {
-    int old = fcntl(sockFd, F_GETFL) ;
+int aeSocket :: setNoBlocking(int fd) {
+    int old = fcntl(fd, F_GETFL) ;
     if(old < 0) {
         std :: cout << __FILE__ << "          " << __LINE__ << std::endl ;
         return -1 ;
     }
     int ret = old|O_NONBLOCK ;
-    ret = fcntl(sockFd, ret) ;
+    ret = fcntl(fd, ret) ;
     if(ret < 0) {
         std :: cout << __FILE__ << "              " << __LINE__ << std :: endl ;
         return -1 ;
     }
-    std::cout << "设置成功！" << std:: endl ;
     return 1 ;
 }
 
@@ -61,3 +60,4 @@ int aeSocket :: acceptClient() {
     int fd = accept(sockFd, NULL, NULL) ;
     return fd ;    
 }
+
