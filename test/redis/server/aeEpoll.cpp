@@ -43,6 +43,7 @@ int aeEpoll :: del(int fd) {
     return 1 ;
 }
 
+//将所有活跃事件收起来ls
 int aeEpoll :: wait(vector<epoll_event>&ls) {
     
     int ret = 0 ;   
@@ -52,6 +53,7 @@ int aeEpoll :: wait(vector<epoll_event>&ls) {
         return -1 ;
     }
     else {
+        cout << "事件发生！" << endl ;
         for(int i=0; i < eventNum; i++) {
             ls.push_back(eventFds[i]) ;
         }

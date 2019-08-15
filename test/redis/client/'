@@ -1,0 +1,5 @@
+#include "clientSock.h"
+
+int clientSock :: anetCreateSock() {
+    return 1 ;
+}       

@@ -31,7 +31,7 @@ int aeSocket :: setNoBlocking(int fd) {
         return -1 ;
     }
     int ret = old|O_NONBLOCK ;
-    ret = fcntl(fd, ret) ;
+    ret = fcntl(fd, F_SETFL, ret) ;
     if(ret < 0) {
         std :: cout << __FILE__ << "              " << __LINE__ << std :: endl ;
         return -1 ;
@@ -40,12 +40,13 @@ int aeSocket :: setNoBlocking(int fd) {
 }
 
 int aeSocket :: tcpServer(string port, string addr, int backLog) {
-
+    
     serv.sin_family = AF_INET ;
     serv.sin_addr.s_addr = inet_addr(addr.c_str()) ;
     serv.sin_port = htons(atoi(port.c_str())) ;
-    int ret = bind(sockFd, (struct sockaddr*)&addr, sizeof(addr)) ;
+    int ret = bind(sockFd, (struct sockaddr*)&serv, sizeof(serv)) ;
     if(ret < 0) {
+        cout << strerror(errno) << endl ; 
         cout << __LINE__ <<  "              " << __FILE__ << endl ;
         return -1 ;
     }

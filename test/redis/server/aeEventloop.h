@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <map>
+#include <algorithm>
 #include "redisDb.h"
 #include <memory> 
 #include "aeEpoll.h"
@@ -8,12 +9,21 @@
 
 #define SIZE 1024
 using namespace std ;
-
+enum {
+    READ= EPOLLIN, 
+    WRITE= EPOLLOUT,
+} ;
 
 //创建事件循环
 class aeEventloop {
-    typedef function<void()> callBack ;
+    typedef function<int(shared_ptr<aeEvent>)> callBack ;
 public :
+    //客户端的读写回调
+    callBack  readCall ;
+    callBack writeCall ;
+    //监听事件的集合
+    vector<int>listenFd ;
+    //epoll事件
     shared_ptr<aeEpoll> aep ;
     //最大文件描述符的值，感觉在epoll中也没什么用
     int maxFd ;
@@ -39,12 +49,15 @@ public :
     //现在距离上一次执行save命令的时间
     long lastsave ;
 
-private :
+public :
     aeEventloop() ; 
     ~aeEventloop() ;
 public :
+    void setReadCallBack(callBack readCb) { readCall = readCb ; }
+    int acceptNewConnect(int fd) ;
     void setCallBack(callBack readCb, callBack writeCb) ;
-    int addServerEvent(string port, string addr) ;
+    int addServerEvent(string addr, string port) ;
     int start() ;
+    int aeProcessEvent(int fd) ;
 } ;
 

@@ -6,6 +6,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/fcntl.h>
+#include <errno.h>
+#include <string.h>
 #include <string>
 #include <functional>
 using namespace std ;
