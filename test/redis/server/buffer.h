@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <vector>
 using namespace std ;
 
@@ -12,21 +13,24 @@ public:
     ~buffer() {}
 public :
     void append(char cc) { 
-        ls.push_back(cc) ;
+        buf.push_back(cc) ;
         readIndex ++ ; 
     }
+    string* getBuf() {
+        return &buf ;
+    }
     char get() { 
-        return ls[writeIndex++] ;
+        return buf[writeIndex++] ;
     }
     
     void clear() { 
         readIndex = 0;
         writeIndex = 0 ;
-        ls.clear() ;
+        buf.clear() ;
     }
 
 private:
-    vector<char>ls ;
+    string buf ;
     long readIndex ;
     long writeIndex ;
 };

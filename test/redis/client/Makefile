@@ -3,9 +3,9 @@
 #
 CC = g++
 
-CFLAGS = -lpthread -g -std=c++11 -w
+CFLAGS = -lpthread -g -std=c++11 -w -lprotobuf `pkg-config --cflags --libs protobuf`
 
-TARGET = Server
+TARGET = client
 
 SrcFile = $(wildcard *.cpp)
 
@@ -21,4 +21,4 @@ $(TARGET):$(ObjFile)
 	clean
 
 clean:
-	rm -rf *.o Server
+	rm -rf *.o

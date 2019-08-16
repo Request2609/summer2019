@@ -61,7 +61,7 @@ int aeEventloop :: start() {
 //处理事件
 int aeEventloop :: aeProcessEvent(int fd) {
     epoll_event* ev = eventData[fd]->getEvent() ;
-    if(ev->events|READ) {
+    if(ev->events&READ) {
         //该fd要是能在监听套接字中找到，新事件
         if(find(listenFd.begin(), listenFd.end(), fd) != listenFd.begin()) {
             int ret = acceptNewConnect(fd) ;
@@ -76,7 +76,7 @@ int aeEventloop :: aeProcessEvent(int fd) {
                 return -1 ;
         }
     }
-    if(ev->events|WRITE) {
+    if(ev->events&WRITE) {
         int ret = eventData[fd]->processWrite()  ; 
         if(ret < 0) {
             return -1 ;
