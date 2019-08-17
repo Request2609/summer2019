@@ -16,9 +16,11 @@ int clientSock :: clientConnect(string ip, string port) {
     addr.sin_port = htons(atoi(port.c_str())) ;
     addr.sin_addr.s_addr = inet_addr(ip.c_str()) ;
     ret = connect(sockFd, (struct sockaddr*)&addr, sizeof(addr)) ;
+    cout << ret << endl ;
+    cout << sockFd << endl ;
     if(ret < 0) {
         cout << __FILE__  << "      " << __LINE__ << endl ;
     }
 
-    return ret ;
+    return sockFd ;
 }

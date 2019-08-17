@@ -1,4 +1,5 @@
 #include "clientLoop.h"
+#include <signal.h>
 //使用gpb命名空间
 
 void clientLoop :: start(string ip, string port) {
@@ -6,22 +7,28 @@ void clientLoop :: start(string ip, string port) {
     if(connFd < 0) {
         stop =true ;
     }
-    connFd = client->clientConnect(ip, port) ;
+    servFd = client->clientConnect(ip, port) ;
     if(connFd < 0) {
         stop = true ;
     }
+  //  signal(SIGINT, sigHandle) ;
     //处理命令
     while(!stop) {
         string cmd, res; 
-        cout << "myRedis>>" << endl ;
+        cout << "myRedis>>";
         getline(cin, cmd) ;
-        
         //解析命令
         cmdStl = split(cmd, " ") ;
-        if(cmdStl.size() == 0) {
+        //退出
+        if(cmd == "quit" || cmd == "q") {
+            cout << "bye bye!" << endl ; 
+            break ;
+        }
+        if(cmdStl.size() < 3) {
             continue ;
         }
         serializeToString(cmdStl, &res) ;
+        
       //  processMsg(command, res) ; 
         //处理序列化的消息
         //发给服务器 
@@ -29,6 +36,9 @@ void clientLoop :: start(string ip, string port) {
     }
 }
 
+int clientLoop :: setEndSig() {
+
+}
 //向服务器发送请求
 int clientLoop :: sendRequest(string& res) {
     int ret = 0;
@@ -38,9 +48,10 @@ int clientLoop :: sendRequest(string& res) {
         res+='1' ;
         char buff[65535] ;
         strcpy(buff, res.c_str()) ;
-        ret = writen(connFd, buff, sizeof(buff)) ;  
+        //使用servFd发送消息
+        ret = writen(servFd, buff, sizeof(buff)) ;  
         if(ret < 0) {
-            cout << __FILE__ << "     " << __LINE__ << endl ;
+            cout << __FILE__ << "     " << __LINE__ << "          " << strerror(errno)<< endl ;
             return  -1 ;
         }
     }

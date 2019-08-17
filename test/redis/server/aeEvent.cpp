@@ -6,15 +6,19 @@ int aeEvent :: processRead() {
     char buff[65535] ;
     int ret = read(connFd, buff, sizeof(buff)) ;
     if(ret < 0) {
-        cout << __FILE__ << "      "  << __LINE__ << endl ;
+        cout << __FILE__  << "      " << connFd << "      "  << __LINE__ << "                " << strerror(errno) << endl ;
         return -1 ;
+    }
+    if(ret == 0) {
     }
     //根据返回值，将数据读到buf
     for(int i=0; i<ret; i++) {
         buf.append(buff[i]) ;
     }
-    string aa = buf.getBuf() ;
-    if(aa[aa.size()-1] != '0') {
+    string* aa = buf.getBuf() ;
+    int k = aa->size()-1 ;
+    if((*aa)[k] != '0') {
+        (*aa)[k] = '\0' ;
         ret = readFunc(shared_from_this()) ;
     }
     //先存入缓冲区

@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <vector>
 #include <functional>
 #include <sys/epoll.h>
 #include <map>
@@ -13,6 +14,7 @@ class aeEvent :public enable_shared_from_this<aeEvent>{
     typedef function<int(shared_ptr<aeEvent>)> callBack ;
 public :
     aeEvent() {
+        //申请16个数据库
         //默认为０号数据库
         mask = 0 ;
     }
@@ -22,6 +24,8 @@ private :
     //套接字对象
     aeSocket sock ;
     int connFd ;
+    //设置数据库的编号
+    int num ;
     //标志位,表示事件结构体是否在被使用
     int mask ;
     //用户缓冲区
@@ -34,6 +38,8 @@ private :
     epoll_event* ev ;
     int servFd ;
 public :
+    int getNum() { return num ; }
+    void setNum(int num) { this->num = num ; }
     int setNoBlock(int fd) { return sock.setNoBlocking(fd) ; }
     void setServFd(int fd) { servFd = fd ; }
     int getServFd() { return servFd ; }

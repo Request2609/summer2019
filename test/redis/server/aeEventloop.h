@@ -1,10 +1,12 @@
 #pragma once
 #include <functional>
+#include <vector>
 #include <map>
 #include <algorithm>
-#include "redisDb.h"
 #include <memory> 
+
 #include "aeEpoll.h"
+#include "redisDb.h"
 #include "aeEvent.h"
 
 #define SIZE 1024
@@ -18,6 +20,8 @@ enum {
 class aeEventloop {
     typedef function<int(shared_ptr<aeEvent>)> callBack ;
 public :
+    //数据库数组
+    vector<shared_ptr<redisDb>>db ;
     //客户端的读写回调
     callBack  readCall ;
     callBack writeCall ;
@@ -29,8 +33,6 @@ public :
     int maxFd ;
     //文件描述符的个数
     int setSize ; 
-    //数据库数组
-    vector<shared_ptr<redisDb>>db ;
     //下一个时间事件ID标识
     long long timeEventNextId ;
     //设置事件
@@ -47,7 +49,7 @@ public :
     //记录距离上一次save，服务器修改了多少次数据库状态
     long dirty ;
     //现在距离上一次执行save命令的时间
-    long lastsave ;
+    long lastSave ;
 
 public :
     aeEventloop() ; 

@@ -28,5 +28,5 @@ private:
     map<string, set<string>> comset ;
     //hash集合
     map<string, map<string, string>>hset ;
-    map<string, string>com ;
+    map<string, string>common ;
 } ;

@@ -1,14 +1,17 @@
 #include "aeEventloop.h"
-#include "serializeParse.h"
 #include "aeEvent.h"
+#include "cmdProcess.h"
 
 int readOnMessage(shared_ptr<aeEvent>tmp) { 
-    //处理事件的逻辑    
-    //获取到客户端的数据，并打印
-    buffer* bf = tmp->getBuf() ;
-    string* buf = tmp->getBuf()->getBuf() ;
-    
-    parseString()
+    //处理事件    
+    cmdProcess cmdPro ;
+    cmdPro.processMsg(tmp) ;
+  /*  buffer* bf = tmp->getBuf() ;
+    string* buf = bf->getBuf() ;
+    Command cmd = parseString(*buf) ;
+    //最后一定得清空改用的读缓冲区
+    buf->clear() ;
+    */
     return 1 ;
 }
 

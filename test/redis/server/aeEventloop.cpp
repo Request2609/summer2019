@@ -1,11 +1,13 @@
 #include "aeEventloop.h"
-
+#include <stdlib.h>
 //初始化事件
 //创建epoll句柄等工作
 aeEventloop :: aeEventloop() {
     maxFd = -1 ;
     setSize = -1 ;
     stop = false ;
+    //刚开始创建16个数据库
+    db.reserve(16) ;
     //创建一个epoll对象
     aep = make_shared<aeEpoll>() ;
     aep->epCreate(SIZE) ;
@@ -54,6 +56,7 @@ int aeEventloop :: start() {
             eventData[fd]->setEvent(&fireList[i]) ;
             aeProcessEvent(fd) ;
         }
+        fireList.clear() ;
     }
     return 1 ;
 }
@@ -62,8 +65,20 @@ int aeEventloop :: start() {
 int aeEventloop :: aeProcessEvent(int fd) {
     epoll_event* ev = eventData[fd]->getEvent() ;
     if(ev->events&READ) {
+        //如果找到fd就退出
+        auto find = [&]()->int {
+            int ret = 0 ;
+            int len = listenFd.size() ;
+            for(int i=0; i<len; i++) {
+                if(fd == listenFd[i]) {
+                    ret = 1 ;
+                    break ;
+                }
+            }
+            return ret ;
+        };
         //该fd要是能在监听套接字中找到，新事件
-        if(find(listenFd.begin(), listenFd.end(), fd) != listenFd.begin()) {
+        if(find() == 1) {
             int ret = acceptNewConnect(fd) ;
             if(ret < 0) {
                 return 0 ;
@@ -74,9 +89,19 @@ int aeEventloop :: aeProcessEvent(int fd) {
             int ret = eventData[fd]->processRead() ;           
             if(ret < 0)
                 return -1 ;
+            //读到０表示退出
+            if(ret == 0) {
+                //持久化该客户端的数据
+                
+                aep->del(fd) ;
+                //从eventData删除fd对应的对象
+                map<int, shared_ptr<aeEvent>>::iterator ls= eventData.find(fd) ;
+                
+                eventData.erase(ls) ;
+            }
         }
     }
-    if(ev->events&WRITE) {
+    else if(ev->events&WRITE) {
         int ret = eventData[fd]->processWrite()  ; 
         if(ret < 0) {
             return -1 ;
@@ -93,8 +118,10 @@ int aeEventloop :: acceptNewConnect(int fd) {
         return -1 ;
     }
     //创建相应的aeEvent事件
-    //设置度写回调函数
+    //设置度写回调函
     shared_ptr<aeEvent>tmp = make_shared<aeEvent>() ;
+    //设置数据库号码，刚开始是０号数据库
+    tmp->setNum(0) ;
     //设置事件非阻塞
     tmp->setNoBlock(newFd) ;
     //加入到事件列表
@@ -103,7 +130,6 @@ int aeEventloop :: acceptNewConnect(int fd) {
     tmp->setWriteCallBack(writeCall) ;
     tmp->setConnFd(newFd)  ;
     tmp->setServFd(fd) ;
-    
     //将事件加入到epoll中
     aep->add(newFd, READ) ;
     return 1 ;
@@ -116,5 +142,5 @@ void aeEventloop :: setCallBack(callBack readCb, callBack writeCb) {
     writeCall = writeCb ;
 }
 aeEventloop :: ~aeEventloop() {
-       
+      
 }
