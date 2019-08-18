@@ -24,6 +24,7 @@ public:
     }
     ~clientLoop() {}
 public : 
+    int recvInfo() ;
     void start(string ip, string port) ;
     int processMsg(Command& cmd, string& res) ;
     int sendRequest(string& res) ;

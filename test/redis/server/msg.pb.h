@@ -343,6 +343,7 @@ class Command :
     kValsFieldNumber = 5,
     kCmdFieldNumber = 2,
     kKeyFieldNumber = 4,
+    kStatusFieldNumber = 1,
     kLenFieldNumber = 3,
   };
   // repeated .Messages.Value vals = 5;
@@ -396,6 +397,15 @@ class Command :
   std::string* _internal_mutable_key();
   public:
 
+  // required int32 status = 1;
+  bool has_status() const;
+  private:
+  bool _internal_has_status() const;
+  public:
+  void clear_status();
+  ::PROTOBUF_NAMESPACE_ID::int32 status() const;
+  void set_status(::PROTOBUF_NAMESPACE_ID::int32 value);
+
   // required int32 len = 3;
   bool has_len() const;
   private:
@@ -418,6 +428,7 @@ class Command :
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Messages::Value > vals_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr cmd_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr key_;
+  ::PROTOBUF_NAMESPACE_ID::int32 status_;
   ::PROTOBUF_NAMESPACE_ID::int32 len_;
   friend struct ::TableStruct_msg_2eproto;
 };
@@ -504,6 +515,27 @@ Value::mutable_val() {
 
 // Command
 
+// required int32 status = 1;
+inline bool Command::_internal_has_status() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline bool Command::has_status() const {
+  return _internal_has_status();
+}
+inline void Command::clear_status() {
+  status_ = 0;
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 Command::status() const {
+  // @@protoc_insertion_point(field_get:Messages.Command.status)
+  return status_;
+}
+inline void Command::set_status(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _has_bits_[0] |= 0x00000004u;
+  status_ = value;
+  // @@protoc_insertion_point(field_set:Messages.Command.status)
+}
+
 // required string cmd = 2;
 inline bool Command::_internal_has_cmd() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
@@ -576,21 +608,21 @@ inline void Command::set_allocated_cmd(std::string* cmd) {
 
 // required int32 len = 3;
 inline bool Command::_internal_has_len() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline bool Command::has_len() const {
   return _internal_has_len();
 }
 inline void Command::clear_len() {
   len_ = 0;
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 Command::len() const {
   // @@protoc_insertion_point(field_get:Messages.Command.len)
   return len_;
 }
 inline void Command::set_len(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
   len_ = value;
   // @@protoc_insertion_point(field_set:Messages.Command.len)
 }

@@ -3,7 +3,7 @@
 
 int aeEvent :: processRead() { 
     //读取数据
-    char buff[65535] ;
+    char buff[SIZE] ;
     int ret = read(connFd, buff, sizeof(buff)) ;
     if(ret < 0) {
         cout << __FILE__  << "      " << connFd << "      "  << __LINE__ << "                " << strerror(errno) << endl ;

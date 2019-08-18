@@ -8,6 +8,7 @@
 #include "buffer.h"
 #include "aeSocket.h"
 using namespace std ;
+#define SIZE 4096
 //创建连接事件信息
 class aeEvent :public enable_shared_from_this<aeEvent>{
     //创建文件描述符

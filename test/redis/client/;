@@ -33,7 +33,6 @@ void clientLoop :: start(string ip, string port) {
         //处理序列化的消息
         //发给服务器 
         sendRequest(res) ;
-        //接收并打印结果命令
         recvInfo() ;   
     }
 }
@@ -41,12 +40,7 @@ void clientLoop :: start(string ip, string port) {
 //接收消息
 int clientLoop :: recvInfo() {
     char buf[4096] ;
-    if(readn(servFd, buf, sizeof(buf)) < 0) {
-        cout << __FILE__ << "           " << __LINE__ << endl ;
-        return -1 ;
-    }
-    
-    return 1 ;
+    if(readn(fd, ))
 }
 
 int clientLoop :: setEndSig() {
