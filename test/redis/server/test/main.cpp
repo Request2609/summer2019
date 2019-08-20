@@ -2,33 +2,33 @@
 #include "stringOperation.h"
 #include "serializeParse.h"
 #include "msg.pb.h"
-//bool SerializeToString(string* output) ;   
-//bool ParseFromString(const string& data);  
 using namespace std  ;
 using namespace Messages ;
 
 int main() {
 
     string com ;
-    getline(cin, com) ;
     vector<string>ls = split(com, " ");
     int len = ls.size() ;
     Command cmd ;
 
     string aa = "";
-    serializeToString(cmd, ls, &aa) ;
-   /* cmd.set_cmd(ls[0]);
-    cmd.set_key(ls[1]) ;
+    cmd.set_cmd("get") ;
+    cmd.set_key("name") ;
+    cmd.set_len(10) ;
     Value* val = cmd.add_vals() ;
+    //设置值,值可能重复
     for(int i=2; i<len; i++) {
-        string*a = val->add_val() ;
+        string* a = val->add_val() ;
         *a = ls[i] ;
-    }
-
-    string aa ;*/
-   // cmd.SerializeToString(&aa) ;
+        cout << *a << endl ;
+    }   
+    string aaa ;
+    
+    cmd.SerializeToString(&aaa) ;
     //发序列化
-    Command cmm = parseString(aa) ;
+    Command cmm ;
+    cmm.ParseFromString(aaa) ;
     cout << "cmd:" << cmm.cmd() << endl ;
     cout << "key:" << cmm.key() << endl ;
     len = cmm.vals_size() ;
@@ -38,6 +38,7 @@ int main() {
             cout << "value :" << cmm.vals(i).val(j) << endl;
         }
     }
+    cout << "len:" << cmm.len() << endl ;
     cout << "结束" << endl ;
     return 0;
 }

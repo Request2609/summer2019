@@ -64,6 +64,7 @@ int aeEventloop :: start() {
 //处理事件
 int aeEventloop :: aeProcessEvent(int fd) {
     epoll_event* ev = eventData[fd]->getEvent() ;
+
     if(ev->events&READ) {
         //如果找到fd就退出
         auto find = [&]()->int {
@@ -92,11 +93,10 @@ int aeEventloop :: aeProcessEvent(int fd) {
             //读到０表示退出
             if(ret == 0) {
                 //持久化该客户端的数据
-                
                 aep->del(fd) ;
                 //从eventData删除fd对应的对象
                 map<int, shared_ptr<aeEvent>>::iterator ls= eventData.find(fd) ;
-                
+                ///删除相应的数据               
                 eventData.erase(ls) ;
             }
         }
@@ -107,6 +107,7 @@ int aeEventloop :: aeProcessEvent(int fd) {
             return -1 ;
         }
     }
+
     return 1 ;
 }
 
