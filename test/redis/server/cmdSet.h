@@ -3,32 +3,48 @@
 #include <map>
 #include <vector>
 #include "aeEvent.h"
-using namespace std  ;
+#include "msg.pb.h"
+#include "cmd.h"
+#include "redisDb.h"
 
+using namespace std  ;
+using namespace Messages ;
+
+enum {
+    NOTFOUND =   1,
+    FOUND = 2,
+    KEYINVALID = 3
+} ; 
 //暂时没用
 typedef int *redisGetKeysProc();
+class cmdSet ;
+class redisDb ;
 
 class redisCommand {
+    //该命令的的处理函数
+    typedef function<int(weak_ptr<redisDb>, shared_ptr<Command>)>call ;
 public :
-    redisCommand(string name, int arity, char* flag, redisGetKeysProc*func, 
+    redisCommand(string name, int arity, char* flag, call*callBack, 
                  int fir, int last, int keyStep, long long msecond, long long calls) {
             this->name = name ;
             this->arity = arity ;
             this->flags = flag ;
-            this->getKeys = func ;
+            this->callBack = callBack ;
+            this->getKeys = NULL ;
             this->firstKey = fir ;
             this->lastKey = last ;
             this->keyStep = keyStep ;
             this->microSecond = msecond ;
             this->calls = calls ;
     } 
-    
     ~redisCommand() {}
 public :
+    int cmdSet() ;
     //函数指针，指向命令的具体实现
-    //将客户端信息传进去
-    int redisCommandProc(shared_ptr<aeEvent>tmp) ;
-public :
+  //  string redisCommandProc(shared_ptr<Command>cd) ;
+private :
+    call* callBack ;
+    string stringRes ;
     string name ;
     //参数数量限制,用于验证参数是否正确
     int arity ;
@@ -47,12 +63,15 @@ public :
 //命令集合
 class cmdSet {
 public:
+    //设置命令的回调函数
     cmdSet() {
+        //申请16个数据库
+        dbLs.reserve(16) ;
         //get命令,F表示时间复杂度比较小的命令,Fast
         cmdList.insert(make_pair("get", 
-                                 make_shared<redisCommand>("get", 2, "rF", NULL, 1, 1, 1, 0, 0))) ;
+                                 make_shared<redisCommand>("get", 2, "rF", nullptr, 1, 1, 1, 0, 0))) ;
         cmdList.insert(make_pair("set", 
-                                 make_shared<redisCommand>("set", -3, "wm", NULL, 1,1, 1, 0, 0))) ;
+                                 make_shared<redisCommand>("set", -3, "wm", setCmd, 1,1, 1, 0, 0))) ;
         cmdList.insert(make_pair("append", 
                                  make_shared<redisCommand>("append", 3, "wm", NULL, 1,1, 1, 0, 0))) ;
         cmdList.insert(make_pair("hset", 
@@ -66,11 +85,15 @@ public:
     }
     ~cmdSet() {}
 public :
+    static int setCmd(weak_ptr<redisDb>&wcmd, shared_ptr<Command>&tmp) ;
+    int redisCommandProc(int num, shared_ptr<Command>& wcmd) ;
+    shared_ptr<redisDb> getDB(int num) ;
+    //扩大数据库
     //返回命令集合
-    map <string, shared_ptr<redisCommand>>const *getCmdList() {
-        return &cmdList ;
-    }   
+    int findCmd(string cmd) ;  
 private:
+    //数据库,键值是数据库编号码,之后数据库对象
+    vector<pair<int, shared_ptr<redisDb>>>dbLs ;
     //命令名称，命令类型
     map<string, shared_ptr<redisCommand>> cmdList ;  
 };

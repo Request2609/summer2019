@@ -10,17 +10,24 @@ int aeEvent :: processRead() {
         return -1 ;
     }
     if(ret == 0) {
+        cout << __FILE__ << "       " <<__LINE__ << endl ;
+        return 0 ;
     }
     //根据返回值，将数据读到buf
     for(int i=0; i<ret; i++) {
         buf.append(buff[i]) ;
     }
+    //收到数据
     string* aa = buf.getBuf() ;
-    int k = aa->size()-1 ;
+    
+    //将数据返回给事件循环/*
+   int k = aa->size()-1 ;
+   //对端设置消息中的最后一个字节为'1',表示消息结束
     if((*aa)[k] != '0') {
         (*aa)[k] = '\0' ;
         ret = readFunc(shared_from_this()) ;
     }
+    
     //先存入缓冲区
     //判断收到结束标志调用回调函数  <接口>预留  
 }

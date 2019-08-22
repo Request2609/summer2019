@@ -9,6 +9,7 @@
 #include "clientSock.h"
 #include "aeEpoll.h"
 #include "buffer.h"
+#include "rpc.h"
 #include "serializeString.h"
 
 using namespace Messages ;
@@ -17,8 +18,10 @@ using namespace placeholders ;
 
 class clientLoop {
 public:
-    clientLoop():stop(false) { 
+    clientLoop(rpc* rc):stop(false) { 
         client = make_shared<clientSock>() ;
+        //设置相应的rpc处理函数
+        this->rc = rc ;
         //申请epoll
     //    aep = make_shared<aeEpoll>() ;
     }
@@ -30,10 +33,10 @@ public :
     int sendRequest(string& res) ;
     int setEndSig() ;
 private:
-  //  shared_ptr<aeEpoll>aep ;
     bool stop ;
     shared_ptr<clientSock> client;
     buffer bf ;
+    rpc*rc ;
     vector<string> cmdStl ;
     int servFd ;
 };

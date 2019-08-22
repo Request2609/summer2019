@@ -27,14 +27,17 @@ void clientLoop :: start(string ip, string port) {
         if(cmdStl.size() < 3) {
             continue ;
         }
-        serializeToString(cmdStl, &res) ;
+        //解析命令
+        rc->sendRequest(connFd, cmdStl) ;   
+        //序列化
+        //serializeToString(cmdStl, &res) ;
         
       //  processMsg(command, res) ; 
         //处理序列化的消息
         //发给服务器 
-        sendRequest(res) ;
+        ///sendRequest(res) ;
         //接收并打印结果命令
-        recvInfo() ;   
+//        recvInfo() ;   
     }
 }
 
@@ -50,7 +53,7 @@ int clientLoop :: recvInfo() {
 }
 
 int clientLoop :: setEndSig() {
-
+      
 }
 //向服务器发送请求
 int clientLoop :: sendRequest(string& res) {

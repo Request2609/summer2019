@@ -6,10 +6,9 @@
 #include <memory> 
 
 #include "aeEpoll.h"
-#include "redisDb.h"
+//#include "redisDb.h"
 #include "aeEvent.h"
 
-#define SIZE 1024
 using namespace std ;
 enum {
     READ= EPOLLIN, 
@@ -21,7 +20,7 @@ class aeEventloop {
     typedef function<int(shared_ptr<aeEvent>)> callBack ;
 public :
     //数据库数组
-    vector<shared_ptr<redisDb>>db ;
+    //vector<shared_ptr<redisDb>>db ;
     //客户端的读写回调
     callBack  readCall ;
     callBack writeCall ;

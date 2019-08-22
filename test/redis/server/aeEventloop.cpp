@@ -7,7 +7,7 @@ aeEventloop :: aeEventloop() {
     setSize = -1 ;
     stop = false ;
     //刚开始创建16个数据库
-    db.reserve(16) ;
+   // db.reserve(16) ;
     //创建一个epoll对象
     aep = make_shared<aeEpoll>() ;
     aep->epCreate(SIZE) ;
@@ -66,7 +66,7 @@ int aeEventloop :: aeProcessEvent(int fd) {
     epoll_event* ev = eventData[fd]->getEvent() ;
 
     if(ev->events&READ) {
-        //如果找到fd就退出
+        //如果找a到fd就退出
         auto find = [&]()->int {
             int ret = 0 ;
             int len = listenFd.size() ;
