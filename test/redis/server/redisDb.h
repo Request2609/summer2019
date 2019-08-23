@@ -6,34 +6,27 @@
 #include <memory>
 #include <map>
 #include <set>
+#include "msg.pb.h"
+using namespace Messages ;
 using namespace std ;
 
 class redisDb ;
 class dbObject ;
-
+class setCommand ;
+class factory ;
 //数据库对象
 class redisDb {
 private :
-    vector<shared_ptr<dbObject>> db ;
-public :
     //数据库编号
     int num ;
+    vector<shared_ptr<dbObject>> db ;
+public :
     void append(shared_ptr<dbObject>rdb) { db.push_back(rdb); }
+    //命令键
+    int isExist(shared_ptr<Command>&cmds) ;
+    //获取key
     //删除当前数据库中的一个对象
     void del() {
-    }
-} ;
-
-class factory {
-public :
-    static shared_ptr<dbObject> getObject(string cmd) {
-        if(cmd == "set") {
-            shared_ptr<dbObject> tmp = make_shared<dbObject>() ;
-            return tmp ;
-        }   
-        else {
-            return nullptr ;
-        }
     }
 } ;
 
@@ -42,7 +35,13 @@ public:
     dbObject() {}
     virtual ~dbObject() {}
 public :
-    virtual void set() ;
+    //set操作
+    virtual void setKey(string k) ;
+    virtual void setValue(string v) ;
+    virtual string getKey() ;
+    virtual string getValue() ;
+    //获取命令编号
+    virtual int getNum() ;
 private :
     //保存所有键的过期时间
     //redis对象管理dict对象
@@ -50,9 +49,16 @@ private :
 };
 
 //set对象
-class setCmd : dbObject {
+class setCommand : public dbObject {
 public :
-    void set() {} 
+    setCommand() {}
+    ~setCommand() {}
+public :
+    void setKey(string k) { this->key = k ; } 
+    void setValue(string value)  { this->value = value ; }
+    string  getName() { return key ; }
+    string getKey() { return value ; }
+    int getNum() { return num ; }
 public :
     map<string, long long> expire ;
     int num ;
@@ -61,9 +67,10 @@ public :
    // map<string, string>common ;
 } ;
 
-class hsetCmd : dbObject {
+class hsetCmd : public dbObject {
 public :
     int num ;
+    map<string, map<string, string>>hset ;
 } ;
 /*
 //字典
@@ -73,6 +80,18 @@ private:
     map<string, list<string>> ls ;
     map<string, set<string>> comset ;
     //hash集合
-    map<string, map<string, string>>hset ;
     map<string, string>common ;
 } ;*/
+class factory {
+public :
+    static shared_ptr<dbObject> getObject(string cmd) {
+        if(cmd == "set") {
+            shared_ptr<setCommand> tmp = make_shared<setCommand>() ;
+            return tmp ;
+        }   
+        else {
+            return nullptr ;
+        }
+    }
+} ;
+

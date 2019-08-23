@@ -63,8 +63,8 @@ int aeEventloop :: start() {
 
 //处理事件
 int aeEventloop :: aeProcessEvent(int fd) {
-    epoll_event* ev = eventData[fd]->getEvent() ;
 
+    epoll_event* ev = eventData[fd]->getEvent() ;
     if(ev->events&READ) {
         //如果找a到fd就退出
         auto find = [&]()->int {
@@ -87,9 +87,8 @@ int aeEventloop :: aeProcessEvent(int fd) {
         }
         //其他可读事件
         else {
-            int ret = eventData[fd]->processRead() ;           
-            if(ret < 0)
-                return -1 ;
+            int ret = eventData[fd]->processRead() ; 
+            //收到处理失败
             //读到０表示退出
             if(ret == 0) {
                 //持久化该客户端的数据
@@ -107,7 +106,6 @@ int aeEventloop :: aeProcessEvent(int fd) {
             return -1 ;
         }
     }
-
     return 1 ;
 }
 
@@ -142,6 +140,7 @@ void aeEventloop :: setCallBack(callBack readCb, callBack writeCb) {
     readCall = readCb ;
     writeCall = writeCb ;
 }
+
 aeEventloop :: ~aeEventloop() {
       
 }

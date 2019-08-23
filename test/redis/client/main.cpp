@@ -1,19 +1,22 @@
-#include "cmd.h"
+#include "cmds.h"
 #include "clientLoop.h"
-#include "method.h"
-
+#include "request.h"
+#include "rpc.h"
 using namespace std ;
 
 int main(int argc, char** argv) {
     
-    //初始化命令表
+    //初始化令表
     cmds::build() ;
     rpc rc ;
     if(argc != 3) {
         cout << __FILE__ << "        " << __LINE__ << endl ;
         return 1 ;
     }
-    clientLoop clp ;
+
+    rc.setCallMethod(request::sendRequest) ;
+    clientLoop clp(&rc) ;
+    
     clp.start(argv[1], argv[2]) ;
     return 0;
 }

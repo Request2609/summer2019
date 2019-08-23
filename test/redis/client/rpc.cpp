@@ -7,5 +7,18 @@ shared_ptr<Command> rpc :: getParseString(string* buff) {
     return res ;
 }
 
+rpc :: rpc() {
+    cmd = make_shared<Command>() ;
+}
 
+rpc :: ~rpc() {
 
+}
+
+void rpc :: setCallMethod(call cb) { 
+    request = move(cb); 
+}   
+
+void rpc :: setCallMethod(parse par) {
+    parseMethod = move(par) ;
+}

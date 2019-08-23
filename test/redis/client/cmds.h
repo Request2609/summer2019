@@ -3,13 +3,11 @@
 #include <memory>
 #include <map>
 using namespace std ;
-class cmds ;
 
 class cmds {
 public:
-    cmds() {
-    }
-    ~cmds() {}
+    cmds() ;
+    ~cmds() ;
 
 public :
     static map<string, int>cmdList ;

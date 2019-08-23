@@ -5,14 +5,8 @@
 int readOnMessage(shared_ptr<aeEvent>tmp) { 
     //处理事件    
     static cmdProcess cmdPro ;
-    cmdPro.processMsg(tmp) ;    
- /*   buffer* bf = tmp->getBuf() ;
-    string* buf = bf->getBuf() ;
-    Command cmd = parseString(*buf) ;
-    //最后一定得清空改用的读缓冲区
-    buf->clear() ;
-*/
-    return 1 ;
+    int ret = cmdPro.processMsg(tmp) ;    
+    return ret ;
 }
 
 int main(int argc, char** argv) {

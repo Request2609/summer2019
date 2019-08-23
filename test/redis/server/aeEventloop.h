@@ -4,7 +4,6 @@
 #include <map>
 #include <algorithm>
 #include <memory> 
-
 #include "aeEpoll.h"
 //#include "redisDb.h"
 #include "aeEvent.h"
@@ -14,6 +13,16 @@ enum {
     READ= EPOLLIN, 
     WRITE= EPOLLOUT,
 } ;
+
+
+//错误类型
+enum INFO{
+    NOTFOUND = 1,
+    FOUND = 2,
+    KEYINVALID = 3,
+    SUCESS = 4, 
+    PROCESSERROR = -1
+} ; 
 
 //创建事件循环
 class aeEventloop {

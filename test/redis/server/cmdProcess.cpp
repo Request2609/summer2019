@@ -33,14 +33,7 @@ int cmdProcess :: processMsg(shared_ptr<aeEvent>&tmp) {
         //没找到
         int ret = cmdSet_->redisCommandProc(num, wcmd) ;
         //传入的键值不合法
-        if(ret == KEYINVALID) {
-            //待处理
-            return KEYINVALID ;
-        }
-        if(ret < 0) {
-            return -1 ;           
-        }
-        
+        sendBack() ;       
     }       
 /*    Command cmd = parseString(*buff) ;
     //对照命令表

@@ -4,6 +4,7 @@
 int aeEvent :: processRead() { 
     //读取数据
     char buff[SIZE] ;
+    //读数据
     int ret = read(connFd, buff, sizeof(buff)) ;
     if(ret < 0) {
         cout << __FILE__  << "      " << connFd << "      "  << __LINE__ << "                " << strerror(errno) << endl ;
@@ -25,9 +26,10 @@ int aeEvent :: processRead() {
    //对端设置消息中的最后一个字节为'1',表示消息结束
     if((*aa)[k] != '0') {
         (*aa)[k] = '\0' ;
+        //调用相应的回调处理可读事件
         ret = readFunc(shared_from_this()) ;
+        return ret ;
     }
-    
     //先存入缓冲区
     //判断收到结束标志调用回调函数  <接口>预留  
 }

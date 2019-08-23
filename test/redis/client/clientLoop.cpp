@@ -28,7 +28,8 @@ void clientLoop :: start(string ip, string port) {
             continue ;
         }
         //解析命令
-        rc->sendRequest(connFd, cmdStl) ;   
+        rc->sendRequest(connFd, cmdStl) ;
+        
         //序列化
         //serializeToString(cmdStl, &res) ;
         

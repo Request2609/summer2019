@@ -1,11 +1,12 @@
 #pragma once
 #include <string>
+#include <functional>
 #include <map>
 #include <vector>
+#include "redisDb.h"
 #include "aeEvent.h"
 #include "msg.pb.h"
 #include "cmd.h"
-#include "redisDb.h"
 
 using namespace std  ;
 using namespace Messages ;
@@ -13,12 +14,16 @@ using namespace Messages ;
 enum {
     NOTFOUND =   1,
     FOUND = 2,
-    KEYINVALID = 3
+    KEYINVALID = 3,
+    SUCESS = 4,
+    PROCESSERROR = -1 
 } ; 
 //暂时没用
 typedef int *redisGetKeysProc();
 class cmdSet ;
 class redisDb ;
+class dbObject ;
+class factory ;
 
 class redisCommand {
     //该命令的的处理函数
@@ -85,12 +90,14 @@ public:
     }
     ~cmdSet() {}
 public :
-    static int setCmd(weak_ptr<redisDb>&wcmd, shared_ptr<Command>&tmp) ;
     int redisCommandProc(int num, shared_ptr<Command>& wcmd) ;
     shared_ptr<redisDb> getDB(int num) ;
     //扩大数据库
     //返回命令集合
     int findCmd(string cmd) ;  
+public :
+    static int isKeyExist(shared_ptr<redisDb>&wcmd, shared_ptr<Command>&cmd) ;
+    static int setCmd(shared_ptr<redisDb>&wcmd, shared_ptr<Command>&tmp) ;
 private:
     //数据库,键值是数据库编号码,之后数据库对象
     vector<pair<int, shared_ptr<redisDb>>>dbLs ;

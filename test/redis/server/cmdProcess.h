@@ -3,25 +3,27 @@
 #include <memory>   
 #include <vector>
 #include <string>
+#include "aeEvent.h"
 #include "redisDb.h"
 #include "rpc.h"
 #include "cmdSet.h"
-#include "aeEvent.h"
 #include "buffer.h"
 #include "serializeParse.h"
 #include "readWrite.h"
-
+#include "enum.h"
 
 #define SIZE 4096
 using namespace std ;
-
+class rpc ;
 class cmdSet ;
 class redisCommand ;
 //错误类型
 enum {
     NOTFOUND = 1,
     FOUND = 2,
-    KEYINVALID = 3
+    KEYINVALID = 3,
+    SUCESS = 4, 
+    PROCESSERROR = -1
 } ; 
 
 //处理消息请求的函数

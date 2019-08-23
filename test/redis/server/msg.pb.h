@@ -47,7 +47,7 @@ struct TableStruct_msg_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[3]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[4]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -61,6 +61,9 @@ extern CommandDefaultTypeInternal _Command_default_instance_;
 class Key;
 class KeyDefaultTypeInternal;
 extern KeyDefaultTypeInternal _Key_default_instance_;
+class Time;
+class TimeDefaultTypeInternal;
+extern TimeDefaultTypeInternal _Time_default_instance_;
 class Value;
 class ValueDefaultTypeInternal;
 extern ValueDefaultTypeInternal _Value_default_instance_;
@@ -68,6 +71,7 @@ extern ValueDefaultTypeInternal _Value_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::Messages::Command* Arena::CreateMaybeMessage<::Messages::Command>(Arena*);
 template<> ::Messages::Key* Arena::CreateMaybeMessage<::Messages::Key>(Arena*);
+template<> ::Messages::Time* Arena::CreateMaybeMessage<::Messages::Time>(Arena*);
 template<> ::Messages::Value* Arena::CreateMaybeMessage<::Messages::Value>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Messages {
@@ -378,6 +382,147 @@ class Key :
 };
 // -------------------------------------------------------------------
 
+class Time :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Messages.Time) */ {
+ public:
+  Time();
+  virtual ~Time();
+
+  Time(const Time& from);
+  Time(Time&& from) noexcept
+    : Time() {
+    *this = ::std::move(from);
+  }
+
+  inline Time& operator=(const Time& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Time& operator=(Time&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const Time& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Time* internal_default_instance() {
+    return reinterpret_cast<const Time*>(
+               &_Time_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(Time& a, Time& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Time* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Time* New() const final {
+    return CreateMaybeMessage<Time>(nullptr);
+  }
+
+  Time* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Time>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const Time& from);
+  void MergeFrom(const Time& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  #if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  #else
+  bool MergePartialFromCodedStream(
+      ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) final;
+  #endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+  ::PROTOBUF_NAMESPACE_ID::uint8* InternalSerializeWithCachedSizesToArray(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Time* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Messages.Time";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_msg_2eproto);
+    return ::descriptor_table_msg_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTimeFieldNumber = 1,
+  };
+  // optional double time = 1;
+  bool has_time() const;
+  private:
+  bool _internal_has_time() const;
+  public:
+  void clear_time();
+  double time() const;
+  void set_time(double value);
+
+  // @@protoc_insertion_point(class_scope:Messages.Time)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  double time_;
+  friend struct ::TableStruct_msg_2eproto;
+};
+// -------------------------------------------------------------------
+
 class Command :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Messages.Command) */ {
  public:
@@ -427,7 +572,7 @@ class Command :
                &_Command_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    3;
 
   friend void swap(Command& a, Command& b) {
     a.Swap(&b);
@@ -499,6 +644,7 @@ class Command :
     kKeysFieldNumber = 4,
     kValsFieldNumber = 5,
     kCmdFieldNumber = 2,
+    kTimeFieldNumber = 8,
     kStatusFieldNumber = 1,
     kLenFieldNumber = 3,
     kTypeFieldNumber = 6,
@@ -546,7 +692,18 @@ class Command :
   std::string* _internal_mutable_cmd();
   public:
 
-  // required int32 status = 1;
+  // optional .Messages.Time time = 8;
+  bool has_time() const;
+  private:
+  bool _internal_has_time() const;
+  public:
+  void clear_time();
+  const ::Messages::Time& time() const;
+  ::Messages::Time* release_time();
+  ::Messages::Time* mutable_time();
+  void set_allocated_time(::Messages::Time* time);
+
+  // optional int32 status = 1;
   bool has_status() const;
   private:
   bool _internal_has_status() const;
@@ -555,7 +712,7 @@ class Command :
   ::PROTOBUF_NAMESPACE_ID::int32 status() const;
   void set_status(::PROTOBUF_NAMESPACE_ID::int32 value);
 
-  // required int32 len = 3;
+  // optional int32 len = 3;
   bool has_len() const;
   private:
   bool _internal_has_len() const;
@@ -564,7 +721,7 @@ class Command :
   ::PROTOBUF_NAMESPACE_ID::int32 len() const;
   void set_len(::PROTOBUF_NAMESPACE_ID::int32 value);
 
-  // required bool type = 6;
+  // optional bool type = 6;
   bool has_type() const;
   private:
   bool _internal_has_type() const;
@@ -573,7 +730,7 @@ class Command :
   bool type() const;
   void set_type(bool value);
 
-  // required int32 num = 7;
+  // optional int32 num = 7;
   bool has_num() const;
   private:
   bool _internal_has_num() const;
@@ -586,15 +743,13 @@ class Command :
  private:
   class _Internal;
 
-  // helper for ByteSizeLong()
-  size_t RequiredFieldsByteSizeFallback() const;
-
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Messages::Key > keys_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Messages::Value > vals_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr cmd_;
+  ::Messages::Time* time_;
   ::PROTOBUF_NAMESPACE_ID::int32 status_;
   ::PROTOBUF_NAMESPACE_ID::int32 len_;
   bool type_;
@@ -754,25 +909,50 @@ Key::mutable_key() {
 
 // -------------------------------------------------------------------
 
+// Time
+
+// optional double time = 1;
+inline bool Time::_internal_has_time() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline bool Time::has_time() const {
+  return _internal_has_time();
+}
+inline void Time::clear_time() {
+  time_ = 0;
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline double Time::time() const {
+  // @@protoc_insertion_point(field_get:Messages.Time.time)
+  return time_;
+}
+inline void Time::set_time(double value) {
+  _has_bits_[0] |= 0x00000001u;
+  time_ = value;
+  // @@protoc_insertion_point(field_set:Messages.Time.time)
+}
+
+// -------------------------------------------------------------------
+
 // Command
 
-// required int32 status = 1;
+// optional int32 status = 1;
 inline bool Command::_internal_has_status() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline bool Command::has_status() const {
   return _internal_has_status();
 }
 inline void Command::clear_status() {
   status_ = 0;
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 Command::status() const {
   // @@protoc_insertion_point(field_get:Messages.Command.status)
   return status_;
 }
 inline void Command::set_status(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000004u;
   status_ = value;
   // @@protoc_insertion_point(field_set:Messages.Command.status)
 }
@@ -847,23 +1027,23 @@ inline void Command::set_allocated_cmd(std::string* cmd) {
   // @@protoc_insertion_point(field_set_allocated:Messages.Command.cmd)
 }
 
-// required int32 len = 3;
+// optional int32 len = 3;
 inline bool Command::_internal_has_len() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline bool Command::has_len() const {
   return _internal_has_len();
 }
 inline void Command::clear_len() {
   len_ = 0;
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 Command::len() const {
   // @@protoc_insertion_point(field_get:Messages.Command.len)
   return len_;
 }
 inline void Command::set_len(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
   len_ = value;
   // @@protoc_insertion_point(field_set:Messages.Command.len)
 }
@@ -928,51 +1108,105 @@ Command::vals() const {
   return vals_;
 }
 
-// required bool type = 6;
+// optional bool type = 6;
 inline bool Command::_internal_has_type() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline bool Command::has_type() const {
   return _internal_has_type();
 }
 inline void Command::clear_type() {
   type_ = false;
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline bool Command::type() const {
   // @@protoc_insertion_point(field_get:Messages.Command.type)
   return type_;
 }
 inline void Command::set_type(bool value) {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000010u;
   type_ = value;
   // @@protoc_insertion_point(field_set:Messages.Command.type)
 }
 
-// required int32 num = 7;
+// optional int32 num = 7;
 inline bool Command::_internal_has_num() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline bool Command::has_num() const {
   return _internal_has_num();
 }
 inline void Command::clear_num() {
   num_ = 0;
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 Command::num() const {
   // @@protoc_insertion_point(field_get:Messages.Command.num)
   return num_;
 }
 inline void Command::set_num(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000020u;
   num_ = value;
   // @@protoc_insertion_point(field_set:Messages.Command.num)
+}
+
+// optional .Messages.Time time = 8;
+inline bool Command::_internal_has_time() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline bool Command::has_time() const {
+  return _internal_has_time();
+}
+inline void Command::clear_time() {
+  if (time_ != nullptr) time_->Clear();
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline const ::Messages::Time& Command::time() const {
+  const ::Messages::Time* p = time_;
+  // @@protoc_insertion_point(field_get:Messages.Command.time)
+  return p != nullptr ? *p : *reinterpret_cast<const ::Messages::Time*>(
+      &::Messages::_Time_default_instance_);
+}
+inline ::Messages::Time* Command::release_time() {
+  // @@protoc_insertion_point(field_release:Messages.Command.time)
+  _has_bits_[0] &= ~0x00000002u;
+  ::Messages::Time* temp = time_;
+  time_ = nullptr;
+  return temp;
+}
+inline ::Messages::Time* Command::mutable_time() {
+  _has_bits_[0] |= 0x00000002u;
+  if (time_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Messages::Time>(GetArenaNoVirtual());
+    time_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:Messages.Command.time)
+  return time_;
+}
+inline void Command::set_allocated_time(::Messages::Time* time) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete time_;
+  }
+  if (time) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      time = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, time, submessage_arena);
+    }
+    _has_bits_[0] |= 0x00000002u;
+  } else {
+    _has_bits_[0] &= ~0x00000002u;
+  }
+  time_ = time;
+  // @@protoc_insertion_point(field_set_allocated:Messages.Command.time)
 }
 
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
