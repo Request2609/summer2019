@@ -1,7 +1,8 @@
+#include <iostream>
 #include "cmds.h"
 #include "clientLoop.h"
-#include "request.h"
 #include "rpc.h"
+#include "request.h"
 using namespace std ;
 
 int main(int argc, char** argv) {
@@ -14,7 +15,7 @@ int main(int argc, char** argv) {
         return 1 ;
     }
 
-    rc.setCallMethod(request::sendRequest) ;
+    rc.setCallMethod(request :: sendRequest) ;
     clientLoop clp(&rc) ;
     
     clp.start(argv[1], argv[2]) ;

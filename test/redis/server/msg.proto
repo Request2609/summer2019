@@ -33,4 +33,6 @@ message Command {
     optional Time time = 8;
 }   
 
-
+message Response {
+    required string reply = 1 ;
+}

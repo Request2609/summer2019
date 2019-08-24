@@ -5,6 +5,10 @@
 int readOnMessage(shared_ptr<aeEvent>tmp) { 
     //处理事件    
     static cmdProcess cmdPro ;
+    //设置rpc
+    shared_ptr<rpc>rc = make_shared<rpc>() ;
+    cmdPro.setRpc(rc) ;
+    //处理消息
     int ret = cmdPro.processMsg(tmp) ;    
     return ret ;
 }

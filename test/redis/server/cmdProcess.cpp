@@ -10,6 +10,7 @@ int cmdProcess :: findCmd(const shared_ptr<Command>tmp) {
 
 //处理消息
 int cmdProcess :: processMsg(shared_ptr<aeEvent>&tmp) {
+
     buffer* bf = tmp->getBuf() ;
     //获取到对端序列化的结果
     string* buff = bf->getBuf() ;
@@ -18,11 +19,12 @@ int cmdProcess :: processMsg(shared_ptr<aeEvent>&tmp) {
     shared_ptr<Command>wcmd = rc->getParseString(*buff) ;
     //获取到相应的智能指针后，进行解析
     int ret = findCmd(wcmd) ;
+    Response res ;
     //解析命令不合法
     if(ret == NOTFOUND) {
         //给客户端发送处理结果
         //序列化，并向客户端发送消息，暂时不做处理
-        return NOTFOUND ;
+        res = backInfo :: notFind() ;
     }   
     else {
         //处理命令
@@ -33,8 +35,22 @@ int cmdProcess :: processMsg(shared_ptr<aeEvent>&tmp) {
         //没找到
         int ret = cmdSet_->redisCommandProc(num, wcmd) ;
         //传入的键值不合法
-        sendBack() ;       
-    }       
+        if(ret == NOTFOUND) {
+        } 
+        if(ret == KEYINVALID) {
+            res = backInfo :: keyInvalid() ;
+        }
+        if(ret == SUCESS) {
+            res = backInfo :: okReply() ;
+        }
+        if(ret == PROCESSERROR) {
+            res = backInfo::processError() ;
+        }   
+    } 
+    shared_ptr<Response>re(&res) ;
+    rc->response(res, tmp->getConnFd()) ;
+    //获取到响应的结果
+     
 /*    Command cmd = parseString(*buff) ;
     //对照命令表
     string co = cmd.cmd() ;

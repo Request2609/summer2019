@@ -4,16 +4,17 @@
 #include <vector>
 #include <string>
 #include "aeEvent.h"
-#include "redisDb.h"
-#include "rpc.h"
-#include "cmdSet.h"
 #include "buffer.h"
+#include "backInfo.h"
+#include "redisDb.h"
+#include "cmdSet.h"
 #include "serializeParse.h"
 #include "readWrite.h"
-#include "enum.h"
-
+#include "rpc.h"
 #define SIZE 4096
 using namespace std ;
+
+class aeEvent ;
 class rpc ;
 class cmdSet ;
 class redisCommand ;
@@ -28,8 +29,10 @@ enum {
 
 //处理消息请求的函数
 class cmdProcess {
+    typedef function<void(shared_ptr<Response>res, int fd)> request ;
 public :
-    //创建消息处理
+    //创建
+    //消息处理
     cmdProcess() {
         cmdSet_ = make_shared<cmdSet>() ;
         //获取命令表
@@ -37,6 +40,8 @@ public :
     }
     ~cmdProcess() {}
 public : 
+    void setRpc(shared_ptr<rpc>rc) { this->rc = rc ; }
+    void setRpcMethod() ;
     int processMsg(shared_ptr<aeEvent>&tmp) ;
     int sendMsg(shared_ptr<aeEvent>tmp) ;
     void getAfterKeyPart() ;

@@ -12,7 +12,7 @@ class request ;
 
 class request {
 public :
-    void sendRequest(int fd, vector<string>&res) ;
-    int processCmd(vector<string>&res, Command&com) ;
-    void sendAfterParse(int fd, Command& cmd) ;
+    static void sendRequest(int fd, vector<string>&res) ;
+    static int processCmd(vector<string>&res, Command&com) ;
+    static void sendAfterParse(int fd, Command& cmd) ;
 } ;

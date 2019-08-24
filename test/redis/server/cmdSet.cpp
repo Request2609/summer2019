@@ -50,7 +50,8 @@ int cmdSet :: redisCommandProc(int num, shared_ptr<Command>&wcmd) {
     //数据库编号
     shared_ptr<redisDb> wrdb = getDB(num) ;
     string cmd = wcmd->cmd() ;
-    if(cmd == "set") {
+    //不区分大小写
+    if(!strcasecmp(cmd.c_str(), "set")) {
         //调用命令对应的函数
         int ret = cmdList[cmd].callBack(wrdb, wcmd) ;
         //处理失败

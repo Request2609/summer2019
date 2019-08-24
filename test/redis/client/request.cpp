@@ -1,6 +1,4 @@
 #include "request.h"
-
-
 ///////////////////
 void request :: sendAfterParse(int fd, Command& cmd) { 
     string a ;
