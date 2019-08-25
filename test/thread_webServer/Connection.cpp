@@ -42,6 +42,9 @@ connection :: connection(std::string ip, std::string port) {
 connection :: ~connection() {
 }
 
+void connection :: setWakeChlCall(shared_ptr<channel>&chl) { 
+    chl->setReadCallBack(wakeCb);
+}
 //给channel设置回调
 void connection :: setCallBackToChannel(channel* channel_) {
     if(readCallBack != nullptr)

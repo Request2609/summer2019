@@ -6,7 +6,19 @@
 #include "Channel.h"
 #include "Process.h"
 #include "Create.h"
+
 using namespace std ;
+//唤醒函数，将唤醒套接字缓冲区中的数据读出来,不关闭套接字
+void wakeCb(channel* chl) {
+    int fd = chl->getFd() ;
+    int ret  = 0 ; 
+    int res= read(fd, &ret, sizeof(ret)) ;
+    if(res < 0) {
+        cout << __FILE__ << "         " << __LINE__ << endl ;   
+        return  ;
+    }   
+}
+
 
 void onRead(channel* chl) {
     //将信息获取完成，再解析
@@ -49,9 +61,10 @@ int main(int argc, char** argv) {
         //设置好了ip和端
         conn.setConf(argv[1], argv[2]) ;
     }
-    
+       
     //设置新连接的回调函数
     conn.setReadCallBack(std::bind(onRead, placeholders::_1)) ;
+    conn.setWakeCb(std::bind(wakeCb, placeholders::_1)) ;
     //将新建的连接加入到loop中
     server.addNewConnection(&conn) ;
     //服务器开始工作

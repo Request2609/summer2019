@@ -6,28 +6,30 @@
 #include <thread>
 #include <mutex> 
 #include <map>
+#include "ThreadPool.h"
 #include "Channel.h"
 #include "Epoll.h"
 #include "Connection.h"
-#include "acceptor.h"
-
+using namespace std ;
+class epOperation ;
 class channel ;
 class connection ;
-class epOperation ;
 
 class loopInfo {
 public :
     loopInfo() { 
         ep = make_shared<epOperation>() ;
     }
-    ~loopInfo() { close(ep->getEpFd()) ;}
+    ~loopInfo() {
+
+    }
 public :
-    void add(channel*chl) { chlList.insert(make_pair(chl->getFd(), chl)) ; }
-    channel* getChl() { return &chl ; }
+    static void wakeCb(channel* chl); 
+    void add(int fd, shared_ptr<channel>chl) { chlList.insert(make_pair(fd, chl)) ; }
+    shared_ptr<channel> getChl() { return chl ; }
     int addConnect(channel* chl) ;
-    void wakeCb(channel* chl); 
     int setChannel() ;
-    channel* search(int fd) ;
+    shared_ptr<channel>search(int fd) ;
     shared_ptr<epOperation> getEp() { return ep ; }
     int buildWakeFd() ; 
     //返回所属线程唤醒句柄
@@ -35,12 +37,12 @@ public :
     //唤醒读事件
     int getReadFd() { return wakeupFd[1] ; }
     //返回所属线程epoll句柄
-    int getEpFd() { return ep->getEpFd() ; }
     //返回线程id
     int delChl(int fd) ;
     void setThreadId(long id) { threadId = id ; }
+    int setNoBlock(int fd) ;
 private :
-    channel chl ;
+    shared_ptr<class channel>chl ;
     //事件循环中的epoll
     shared_ptr<epOperation>ep ;
     //唤醒线程的fd
@@ -48,7 +50,7 @@ private :
     //线程id
     long threadId ; 
     //该loop管理的事件集合
-    map<int, channel*>chlList ;
+    map<int, shared_ptr<channel>>chlList ;
 } ;
 
 //事件循环 EventLoop和connection共享channel对象
@@ -56,7 +58,7 @@ class eventLoop {
     typedef std::map<int, channel> channelMap;
 public:
     eventLoop() ;
-    ~eventLoop() {}
+    ~eventLoop() ;
 public :
     int wakeup(int fd) ;
     int doPendingFunc(channel* chl) ;
@@ -71,10 +73,10 @@ public :
     int clearCloseChannel(std::vector<channel>&list_) ;
     void round(loopInfo& loop) ;
     int queueInLoop(channel& chl, int& num) ;
-public :
-    static int getNum() ;
+    int getNum() ;
 private :
-    static int threadNum ;
+    shared_ptr<threadPool>pool ;
+    int threadNums ;
     mutex mute ;
     //线程
     vector<thread> threads ;

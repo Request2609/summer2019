@@ -5,7 +5,6 @@ threadPool :: threadPool(unsigned short size) : stop(false){
     spareThreadNums = size<1 ? 10: size ;
     
     for(size = 0; size < spareThreadNums; size++) {
-        std :: cout << size << std :: endl ;    
         //初始化线程池，使用lambda表达式
         pool.emplace_back(
                           [this]{

@@ -6,7 +6,6 @@ tcpServer :: tcpServer(eventLoop* loop, std::string  port) {
     this->loop = loop ;
     this->port = atoi(port.c_str()) ;
     //设置线程先设置一个
-    threadNum  = 1 ;
 }
 
 void tcpServer :: create(eventLoop* loop) {
@@ -18,7 +17,6 @@ void tcpServer :: create(eventLoop* loop, std::string  port) {
     this->loop = loop ;
     this->port = atoi(port.c_str()) ;
     //设置线程先设置一个
-    threadNum  = 1 ;
 }
 
 //传一个参数的构造

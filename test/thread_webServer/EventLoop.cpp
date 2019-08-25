@@ -1,11 +1,16 @@
 #include"EventLoop.h" 
+#include "Call.h"
 
 eventLoop :: eventLoop() {
     //开8线程
-    threadNum = 8 ;
     //创建一个epoll
+    threadNums = 8 ;
     epPtr = std::make_shared<epOperation>() ;
     quit = false ;
+    pool = make_shared<threadPool>(8);
+}
+
+eventLoop:: ~eventLoop() {
 }
 
 int eventLoop :: clearCloseChannel(std::vector<channel>&list_) {
@@ -37,19 +42,15 @@ int loopInfo :: buildWakeFd() {
 
 //创建线程
 void eventLoop :: runThread() {
-    //开辟线程,创建epoll
-    for(int i=0; i<threadNum; i++) {
-    //    threads.push_back(round) ;
-        thread t ;
-        threads.push_back(t) ;
-    }
-    ///让线程跑起来
-    for(int i=0; i<threadNum; i++) {
+    
+    
+    for(int i=0; i<threadNums; i++) {
         loopInfo infos ;
         infos.buildWakeFd() ;
         infos.setChannel() ;
         info.push_back(infos) ;
-        threads[i] = thread(&eventLoop::round, ref(infos)) ;  
+        auto func = bind(&eventLoop::round, this, placeholders::_1) ;
+        pool->commit(func, ref(infos)) ;
     }
 }
 
@@ -66,22 +67,31 @@ int eventLoop :: wakeup(int fd) {
 
 //为唤醒描述符设置channel
 int loopInfo :: setChannel() {
+
+    chl = make_shared<channel>() ;
     int fd = wakeupFd[1] ;
-    chl.setFd(fd) ;
-    chl.setEvents(READ) ;
+    //设置非阻塞
+    //setNoBlock(fd) ;
+    chl->setFd(fd) ;
+    chl->setEvents(READ) ;
     int epFd = ep->getEpFd() ;
-    chl.setEpFd(epFd) ;
-    ep->add(epFd, fd) ;
-    auto func = bind(&loopInfo::wakeCb, this,  placeholders::_1) ;
+    //为唤醒套接字设置epoll
+    chl->setEpFd(epFd) ;
+    //现在不能添加到epoll中!!!
+    ep->add(fd, READ) ;
     //设置读回调
     connection tmp ;
-    tmp.setReadCallBack(func) ;
-    tmp.setCallBackToChannel(&chl) ;
-   // chl.setReadCallBack(func) ;
+    tmp.setWakeChlCall(chl) ;
     return 1 ;
 }
 
-//唤醒函数，将唤醒套接字缓冲区中的数据读出来,不关闭套接字
+int loopInfo :: setNoBlock(int fd) {
+    int ret = fcntl(fd, F_GETFL) ;
+    ret |= O_NONBLOCK ;
+    ret = fcntl(fd, F_SETFL, ret) ;
+    return ret ;
+}
+
 void loopInfo :: wakeCb(channel* chl) {
     int fd = chl->getFd() ;
     int ret  = 0 ;
@@ -92,7 +102,8 @@ void loopInfo :: wakeCb(channel* chl) {
     }
 }
 
-channel* loopInfo :: search(int fd) { 
+
+shared_ptr<channel> loopInfo :: search(int fd) { 
     if(chlList.find(fd) == chlList.end()) {
         return NULL ;
     }
@@ -101,14 +112,14 @@ channel* loopInfo :: search(int fd) {
 
 //绑定匿名unix套接字
 void eventLoop :: round(loopInfo& loop) {
-
     int wakeFd = loop.getReadFd() ;
     int stop = 0 ;
     //获取epoll
     shared_ptr<epOperation>ep = loop.getEp() ;
-    channel* chl = loop.getChl() ;
+    shared_ptr<channel>chl = loop.getChl() ;
     //将当前唤醒的channel加入到list中
-    loop.add(chl) ;
+    loop.add(chl->getFd(), chl) ;
+    //将wakeFd加入到epoll中
     while(!stop) {
         vector<channel>actChl ;
         vector<channel>closeChannel ;
@@ -141,27 +152,54 @@ void eventLoop :: round(loopInfo& loop) {
     }
 }
 
+//唤醒线程
 int eventLoop :: doPendingFunc(channel* chl) {
-
+    if(qChl.empty()) { 
+        return -1 ;
+    }
+    chl->handleEvent() ;
+    vector<pair<loopInfo*, channel*>>ls ;
+    int wFd = chl->getFd() ; 
     //从队列中取东西
-    mute.lock() ;
-       
-    mute.unlock() ;
+    {
+        lock_guard<mutex>lk(mute) ;
+        for(pair<loopInfo*, channel*>p : qChl) {
+            //当唤醒的fd与channel对应的fd相等的时候
+            if(p.first->getReadFd() == wFd) {
+                ls.push_back(p) ;
+            }
+        }
+        //从qChl中清除掉
+        for(pair<loopInfo*, channel*>p : ls) {
+            qChl.erase(qChl.find(p.first)) ;
+        }
+    }
+
+    //将新连接加入到epoll中,操作局部变量线程安全
+    for(pair<loopInfo*, channel*>p:ls) {
+        shared_ptr<epOperation>ep = p.first->getEp() ;
+        p.second->setEpFd(ep->getEpFd()) ;
+        //设置可读事件并加入到epoll中
+        ep->add(p.second->getFd(), READ) ;
+        p.first->add(p.second->getFd(), shared_ptr<channel>(p.second)) ;
+    }
+    return 1 ;
 }
 
 int loopInfo :: delChl(int fd) {
-    map<int, channel*>::iterator iter = chlList.find(fd) ;
+    map<int, shared_ptr<channel>>::iterator iter = chlList.find(fd) ;
     if(iter != chlList.end()) {
         return -1 ;
     }
     //删除fd对应的事件
     chlList.erase(iter) ;
+    return 1 ;
 } 
 
 int eventLoop:: getNum() {
     static int num = -1 ;
     num++ ;
-    if(num == eventLoop::threadNum) {
+    if(num == threadNums) {
         num = 0 ;
     }
     return num ;
@@ -184,29 +222,12 @@ void eventLoop :: loop() {
         }
         //将事件分发给各个线程
         else {
-           // std::vector<channel>closeList ;a
             //处理连接，所有连接事件分给各个线程中的reactor
             for(channel chl : activeChannels) {
                 //获取一个编号
                 int num = getNum() ; 
                 queueInLoop(chl, num) ;
-              //  qChl.push(&chl) ;
-                //绑定channel和相应的loopInfo
-                //处理事件
-             //   int n = channel.handleEvent() ;
-                //将已经关闭的连接，收集起来
-              //  if(n == 0) {
-            //        closeList.push_back(channel) ;
-               // }
             }
-            //int s = closeList.size() ;
-            //从clList将关闭事件清除
-          /*  if(s != 0) {
-                int n = clearCloseChannel(closeList) ;
-                if(n < 0) {
-                    std :: cout << __FILE__<< "    " << __LINE__<< std::endl ;
-                }
-            }*/
             //清空活跃事件集合
             activeChannels.clear() ;
         }
@@ -219,8 +240,9 @@ int eventLoop :: queueInLoop(channel& chl, int& num) {
     //向队列中插入元素
     qChl.insert(make_pair(&info[num], &chl)) ;
     //通知线程接收新连接
-    wakeup(info[num].getWriteFd()) ;
     mute.unlock() ;
+    wakeup(info[num].getWriteFd()) ;
+    return 1 ;
 }   
 
 //将活跃的事件加入到活跃事件表中
@@ -266,13 +288,10 @@ channel eventLoop :: handleAccept() {
     //为channel设置回调
     //设置套接字非阻塞
     conn->setnoBlocking(conFd) ;
-  //  tmp.setEpFd(epPtr->getEpFd()) ;
     //设置监听事件类型
     tmp.setEvents(READ) ;
-   // epPtr->add(conFd, READ) ;
     //给channel设置回调函数
     conn->setCallBackToChannel(&tmp) ;   
     //将channel加入到当前loop的列表中
-//    clList[conFd] = tmp ;
     return tmp ;
 }

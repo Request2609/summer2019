@@ -31,15 +31,12 @@ public :
     }
     void  addNewConnection(connection* conn) ;
     void start() ;
-    void setThreadNum(int num) ;
 private :
     //事件循环
     eventLoop* loop ;
     //连接名称
     int port ;
     std::string addr ;
-    //线程数量
-    int threadNum ;
     //线程池
     std :: shared_ptr<threadPool> pool ;
     //连接列表

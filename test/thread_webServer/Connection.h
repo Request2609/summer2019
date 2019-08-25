@@ -32,6 +32,9 @@ public :
     void setCloseCallBack(callBack cb) ;
     void setReadCallBack(callBack cb) ;
     void setTimeoutCallBack(callBack cb) ;
+    //绑定唤醒函数
+    void setWakeCb(callBack cb) { wakeCb = move(cb) ; }
+    void setWakeChlCall(std::shared_ptr<channel>&chl) ;
 public :
     //创建监听套接字
     //创建指定端口号的监听套接字
@@ -48,6 +51,7 @@ public :
         return (this->channel_) ;
     }
 private :
+    callBack wakeCb ;
     //三种回调
     callBack readCallBack ;
     callBack writeCallBack ;

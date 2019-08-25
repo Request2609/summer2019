@@ -3,7 +3,12 @@
 #include <sys/epoll.h>
 #include <vector>
 #include <unistd.h>
+#include "Channel.h"
 #include "EventLoop.h"
+using namespace std ;
+
+class channel ;
+class loopInfo ;
 class eventLoop ;
 class epOperation {
 public :

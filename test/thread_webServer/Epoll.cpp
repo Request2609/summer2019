@@ -49,33 +49,29 @@ int epOperation :: wait(eventLoop* loop, int64_t timeout) {
             //将收集起来新连接
             loop->fillChannelList(&ch) ;
         }
-/*
-        //无论那种事件，否加入到活跃列表
-        if(fd != listenFd) {
-            channel* ch = loop->search(fd) ;
-            if(ch == NULL) {
-                std :: cout << __FILE__ << "   " << __LINE__ << std :: endl ;
-                return -1;
-            }
-            else {
-                loop->fillChannelList(ch) ;   
-            }
-        }*/
     }
     return eventNum ;
 }
 
 int epOperation :: roundWait(loopInfo&loop, vector<channel>&actChl) {
     struct epoll_event ev[4096] ; 
-    int ret = epoll_wait(epFd, &ev[0], 4096, -1) ;
-    if(ret < 0) {
-        cout << __FILE__ <<"        " << __LINE__ << endl ;
-        return -1 ;
-    }
+    int ret = 0;
+    do {
+        ret = epoll_wait(epFd, ev, 4096, -1) ;
+        if(ret < 0) {
+            cout <<"错误码：" << errno << "     " << __FILE__ <<"        "<< strerror(errno)<< "      " << __LINE__ << endl ;
+            return -1 ;
+        }
+        if(ret > 0) {
+            break ;
+        }
+    }while(ret < 0 && errno == EINTR) ;
+
     //同样收集活跃时间
     for(int i=0; i<ret; i++) {
         int fd = ev[i].data.fd ;
-        channel* chl = loop.search(fd) ;
+        shared_ptr<channel> chl = loop.search(fd) ;
         actChl.push_back(*chl) ;
     }
+    return ret ;
 }
