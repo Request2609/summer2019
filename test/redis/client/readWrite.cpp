@@ -1,5 +1,5 @@
-#include"readWrite.h"
 #include<iostream>
+#include"readWrite.h"
 
 int readn(int fd, void *buf, int n) {
     int nleft = n; //还需要读取的字节数

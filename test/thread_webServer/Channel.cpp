@@ -19,10 +19,6 @@ int channel::handleAccept(int servFd) {
     return cliFd ;
 }
 
-void channel :: setFd(int &fd) {
-    this->cliFd = fd ;
-}
-
 //修改监听事件
 int channel :: updateChannel() {
     struct epoll_event ev ;
@@ -45,6 +41,7 @@ int channel :: readMsg() {
 }
 
 int channel :: handleEvent() {
+    printf("jjjjjjjjjjjjjjjjjjjjjjj\n") ;
     if(events&EPOLLIN) { 
         int n = handleRead() ;
         if(n < 0) {

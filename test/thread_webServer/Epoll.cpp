@@ -36,16 +36,28 @@ void epOperation :: del(int fd) {
 
 //将活跃的事件全加入到clList
 int epOperation :: wait(eventLoop* loop, int64_t timeout) {
-    
+    int eventNum ;
+    struct epoll_event epFd_[200] ;
     int listenFd = loop->getListenFd() ; 
-    int eventNum = epoll_wait(epFd, &epFds[0], epFds.capacity(), timeout) ;
+    try{
+        eventNum = epoll_wait(epFd, epFd_, 200, timeout) ;
+    }catch(exception e) {
+        cout << e.what() ;
+    }
+    if(eventNum < 0) {
+        cout << eventNum << "           错误：" << strerror(errno) << endl ;
+        return -1 ;
+    }
     //将活跃的事件全部加入到事件列表中
     for(int i=0; i<eventNum; i++) {
-        int fd = epFds[i].data.fd ;
+        int fd = epFd_[i].data.fd ;
         //要是还未注册的事件
         if(fd == listenFd) {
             //接收并注册该连接
             channel ch = loop->handleAccept() ;
+            cout << "原来信息："<< ch.getFd() << endl ;
+            //shared_ptr<channel>tmp = shared_ptr<channel>(&ch) ;
+            //cout << "拷贝完成-------->" << tmp->getFd() << endl ;
             //将收集起来新连接
             loop->fillChannelList(&ch) ;
         }
@@ -54,22 +66,16 @@ int epOperation :: wait(eventLoop* loop, int64_t timeout) {
 }
 
 int epOperation :: roundWait(loopInfo&loop, vector<channel>&actChl) {
-    struct epoll_event ev[4096] ; 
+
     int ret = 0;
-    do {
-        ret = epoll_wait(epFd, ev, 4096, -1) ;
-        if(ret < 0) {
-            cout <<"错误码：" << errno << "     " << __FILE__ <<"        "<< strerror(errno)<< "      " << __LINE__ << endl ;
-            return -1 ;
-        }
-        if(ret > 0) {
-            break ;
-        }
-    }while(ret < 0 && errno == EINTR) ;
+    ret = epoll_wait(epFd, &epFds[0], epFds.capacity(), -1) ;
+    if(ret < 0) {
+        return -1 ;
+    }
 
     //同样收集活跃时间
     for(int i=0; i<ret; i++) {
-        int fd = ev[i].data.fd ;
+        int fd = epFds[i].data.fd ;
         shared_ptr<channel> chl = loop.search(fd) ;
         actChl.push_back(*chl) ;
     }

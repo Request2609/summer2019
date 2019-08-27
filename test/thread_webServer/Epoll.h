@@ -17,6 +17,7 @@ public :
        //设置了epfds的capacity大小
         epFds.reserve(nfds) ;
     }   
+
     ~epOperation() { close(epFd) ; }
 public :
     int getEpFd() {return epFd ;}

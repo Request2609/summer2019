@@ -21,11 +21,20 @@ public :
         ep = make_shared<epOperation>() ;
     }
     ~loopInfo() {
-
+        
     }
 public :
+    size_t size() { return chlList.size() ; }
     static void wakeCb(channel* chl); 
-    void add(int fd, shared_ptr<channel>chl) { chlList.insert(make_pair(fd, chl)) ; }
+    void print() {
+        map<int, shared_ptr<channel>>::iterator iter ;
+        for(iter = chlList.begin(); iter != chlList.end(); iter++) {
+            cout << "------------------++++++++++>"<<iter->first << endl ;
+        }
+    }
+    void add(int fd, shared_ptr<channel>chl) { 
+          chlList.insert(make_pair(fd, chl)) ; 
+    }
     shared_ptr<channel> getChl() { return chl ; }
     int addConnect(channel* chl) ;
     int setChannel() ;
@@ -42,7 +51,7 @@ public :
     void setThreadId(long id) { threadId = id ; }
     int setNoBlock(int fd) ;
 private :
-    shared_ptr<class channel>chl ;
+    shared_ptr<channel>chl ;
     //事件循环中的epoll
     shared_ptr<epOperation>ep ;
     //唤醒线程的fd
@@ -61,7 +70,7 @@ public:
     ~eventLoop() ;
 public :
     int wakeup(int fd) ;
-    int doPendingFunc(channel* chl) ;
+    int doPendingFunc(loopInfo&, channel* chl, shared_ptr<epOperation>ep) ;
     void runThread() ;
     channel* search(int fd) ;
     int getListenFd() { return servFd ; }
@@ -71,7 +80,7 @@ public :
     int fillChannelList(channel*chl) ;
     channel  handleAccept() ;
     int clearCloseChannel(std::vector<channel>&list_) ;
-    void round(loopInfo& loop) ;
+    void round(loopInfo loop, shared_ptr<channel>, shared_ptr<epOperation>) ;
     int queueInLoop(channel& chl, int& num) ;
     int getNum() ;
 private :
@@ -89,7 +98,7 @@ private :
     std :: shared_ptr<epOperation> epPtr ;
     //活跃事件列表
     std :: vector<channel> activeChannels;
-    map<loopInfo*, channel*> qChl ;
+    map<loopInfo*, shared_ptr<channel>> qChl ;
     //该eventLoop对应的监听套接字封装
     //退出标志
     bool quit ;

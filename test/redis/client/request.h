@@ -6,9 +6,10 @@
 #include <memory>
 #include "msg.pb.h"
 #include "cmds.h"
+
+//class request ;
 using namespace std ;
 using namespace Messages ;
-class request ;
 
 class request {
 public :

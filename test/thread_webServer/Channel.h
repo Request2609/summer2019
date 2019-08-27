@@ -25,10 +25,12 @@ public:
     channel() ;
     ~channel() {}
 public :
+
+    void print() { printf("hello world!\n") ; }
     int getFd() {
         return cliFd ;
     }
-    void setFd(int& fd) ;   
+    void setFd(int& fd) { cliFd = fd ; }   
     void setReadCallBack(callBack& cb) {
         readCallBack = cb ;
     }
