@@ -12,7 +12,7 @@ int rpc :: response(shared_ptr<Response>res, int fd) {
     //回复客户端
     string s ;
     //序列化
-    res->SerializeAsString(&s) ;
+    res->SerializeToString(&s) ;
     //向客户端发送消息
     int ret = send(fd, s.c_str(), s.size(), 0) ;
     if(ret < 0) {
@@ -22,3 +22,10 @@ int rpc :: response(shared_ptr<Response>res, int fd) {
     return ret ;
 }
 
+///反序列化
+shared_ptr<Command> requestMethod(string* s) {
+    Command cmd ;
+    cmd.ParseFromString(*s) ;
+    shared_ptr<Command>comm(new Command(cmd)) ;
+    return comm ;
+}

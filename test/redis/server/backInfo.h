@@ -14,7 +14,5 @@ public :
     static Response okReply() ;
     static Response keyInvalid() ;
     static Response processError() ;
-private:
-    static Response res  ;
-};
 
+} ;

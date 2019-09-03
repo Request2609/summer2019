@@ -3,7 +3,8 @@
 //使用gpb命名空间
 
 void clientLoop :: start(string ip, string port) {
-    int connFd = client->anetCreateSock() ;
+
+    /*    int connFd = client->anetCreateSock() ;
     if(connFd < 0) {
         stop =true ;
     }
@@ -11,12 +12,21 @@ void clientLoop :: start(string ip, string port) {
     if(connFd < 0) {
         stop = true ;
     }
-  //  signal(SIGINT, sigHandle) ;
+  */  //给rpc设置端口
+    rc->setAddress(ip, port) ;
+    //连接服务器
+    int ret = rc->Connect() ;
+    if(ret < 0) {
+        cout << "服务器找不到！" << endl ;
+        return ;
+    }
     //处理命令
     while(!stop) {
         string cmd, res; 
-        cout << "myRedis>>";
-        getline(cin, cmd) ;
+        char* p = readline("myRedis >> ") ;
+        //加入历史列表
+        add_history(p) ;
+        cmd = p ;
         //解析命令
         cmdStl = split(cmd, " ") ;
         //退出
@@ -27,35 +37,38 @@ void clientLoop :: start(string ip, string port) {
         if(cmdStl.size() < 3) {
             continue ;
         }
-        //解析命令
-        rc->sendRequest(connFd, cmdStl) ;
-        
-        //序列化
-        //serializeToString(cmdStl, &res) ;
-        
-      //  processMsg(command, res) ; 
-        //处理序列化的消息
-        //发给服务器 
-        ///sendRequest(res) ;
-        //接收并打印结果命令
-//        recvInfo() ;   
+
+        //解析并序列化发送命令
+        int ret = rc->sendRequest(cmdStl) ;
+        if(ret == 5) {
+            cout << "无法连接到服务器！～"<< endl ;
+        }
+        if(ret < 0) {
+            cout << "发送出错！" << endl ;
+        }
+        //返回结果并打印
+        recvInfo() ;
+       //序列化
     }
 }
 
 //接收消息
 int clientLoop :: recvInfo() {
     char buf[4096] ;
-    if(readn(servFd, buf, sizeof(buf)) < 0) {
+    if(read(servFd, buf, sizeof(buf)) < 0) {
         cout << __FILE__ << "           " << __LINE__ << endl ;
         return -1 ;
     }
-    
+
+    //接收消息,直接打印
+    cout << buf << endl ; 
     return 1 ;
 }
 
 int clientLoop :: setEndSig() {
       
 }
+
 //向服务器发送请求
 int clientLoop :: sendRequest(string& res) {
     int ret = 0;
@@ -107,7 +120,8 @@ int clientLoop :: processMsg(Command& cmd, string& res) {
     //第一个是命令
     cmd.set_cmd(cmdStl[0]) ;
     //第二个是key
-    cmd.set_key(cmdStl[1]) ;
+    Key* keys = cmd.add_keys() ;
+    
     //设置值
     Value* val = cmd.add_vals() ;
     

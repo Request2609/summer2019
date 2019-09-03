@@ -10,14 +10,8 @@ using namespace std ;
 
 class rpc ;
 
-///反序列化
-shared_ptr<Command>requestMethod(string* s) {
-    Command cmd ;
-    cmd.ParseFromString(*s) ;   
-    shared_ptr<Command>comm(&cmd) ;
-    return comm ;
-}
 
+shared_ptr<Command> requestMethod(string* s) ;
 class rpc {
     typedef function<void(shared_ptr<Response>res, int fd)> request ;
     typedef function<shared_ptr<Command>(string*)> parse ;
@@ -34,6 +28,7 @@ public :
     ///:void setCallMethod(request cb) { requestMethod = move(cb); }   
     //反序列化函数
     void setCallMethod(parse par) { parseMethod = move(par) ;}
+    ///反序列化
 private : 
     shared_ptr<Command>cmd ;
  //   request requestMethod ;

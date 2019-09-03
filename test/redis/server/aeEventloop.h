@@ -14,16 +14,6 @@ enum {
     WRITE= EPOLLOUT,
 } ;
 
-
-//错误类型
-enum INFO{
-    NOTFOUND = 1,
-    FOUND = 2,
-    KEYINVALID = 3,
-    SUCESS = 4, 
-    PROCESSERROR = -1
-} ; 
-
 //创建事件循环
 class aeEventloop {
     typedef function<int(shared_ptr<aeEvent>)> callBack ;

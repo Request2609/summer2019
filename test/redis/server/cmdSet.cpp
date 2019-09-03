@@ -2,7 +2,7 @@
 #include "enum.h"
 
 int cmdSet:: findCmd(string cmd) {
-    if(cmdList[cmd].find() == cmdList.end()) {
+    if(cmdList.find(cmd) == cmdList.end()) {
         return NOTFOUND ;
     }   
     else {
@@ -15,19 +15,20 @@ shared_ptr<redisDb> cmdSet :: getDB(int num) {
     int len = dbLs.size() ;
     for(int i=0; i<len; i++) {
         if(i == num) {
-            return dbLs[i] ;
+            return dbLs[i].second ;
         }
     }
     return nullptr ;
 }
+
 //设置set命令的处理
 int cmdSet :: setCmd(shared_ptr<redisDb>&wcmd, shared_ptr<Command>&cmd) {
-    //命令
     int num = cmd->keys(0).key_size() ;
     //键的数量不是1,错误的
     if(num != 1) {
         return KEYINVALID ;
     }
+    
     //键存不存在,存在的话,就地修改,返回1, 不存在返回0
     int ret = isKeyExist(wcmd, cmd) ;
     //没找到键值
@@ -46,14 +47,14 @@ int cmdSet :: isKeyExist(shared_ptr<redisDb>&wcmd, shared_ptr<Command>&cmd) {
        return ret ;
 }
 
-int cmdSet :: redisCommandProc(int num, shared_ptr<Command>&wcmd) {
+int cmdSet :: redisCommandProc(int num, shared_ptr<Command>&cmd) {
     //数据库编号
     shared_ptr<redisDb> wrdb = getDB(num) ;
-    string cmd = wcmd->cmd() ;
+    string cd = cmd->cmd() ;
     //不区分大小写
-    if(!strcasecmp(cmd.c_str(), "set")) {
+    if(!strcasecmp(cd.c_str(), "set")) {
         //调用命令对应的函数
-        int ret = cmdList[cmd].callBack(wrdb, wcmd) ;
+        int ret = cmdList[cd]->cb(wrdb, cmd) ;
         //处理失败
         if(ret < 0) {
             return PROCESSERROR ;

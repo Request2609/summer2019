@@ -47,7 +47,7 @@ struct TableStruct_msg_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[4]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -61,6 +61,9 @@ extern CommandDefaultTypeInternal _Command_default_instance_;
 class Key;
 class KeyDefaultTypeInternal;
 extern KeyDefaultTypeInternal _Key_default_instance_;
+class Response;
+class ResponseDefaultTypeInternal;
+extern ResponseDefaultTypeInternal _Response_default_instance_;
 class Time;
 class TimeDefaultTypeInternal;
 extern TimeDefaultTypeInternal _Time_default_instance_;
@@ -71,6 +74,7 @@ extern ValueDefaultTypeInternal _Value_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::Messages::Command* Arena::CreateMaybeMessage<::Messages::Command>(Arena*);
 template<> ::Messages::Key* Arena::CreateMaybeMessage<::Messages::Key>(Arena*);
+template<> ::Messages::Response* Arena::CreateMaybeMessage<::Messages::Response>(Arena*);
 template<> ::Messages::Time* Arena::CreateMaybeMessage<::Messages::Time>(Arena*);
 template<> ::Messages::Value* Arena::CreateMaybeMessage<::Messages::Value>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
@@ -756,6 +760,158 @@ class Command :
   ::PROTOBUF_NAMESPACE_ID::int32 num_;
   friend struct ::TableStruct_msg_2eproto;
 };
+// -------------------------------------------------------------------
+
+class Response :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Messages.Response) */ {
+ public:
+  Response();
+  virtual ~Response();
+
+  Response(const Response& from);
+  Response(Response&& from) noexcept
+    : Response() {
+    *this = ::std::move(from);
+  }
+
+  inline Response& operator=(const Response& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Response& operator=(Response&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const Response& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Response* internal_default_instance() {
+    return reinterpret_cast<const Response*>(
+               &_Response_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(Response& a, Response& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Response* other) {
+    if (other == this) return;
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Response* New() const final {
+    return CreateMaybeMessage<Response>(nullptr);
+  }
+
+  Response* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Response>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const Response& from);
+  void MergeFrom(const Response& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  #if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  #else
+  bool MergePartialFromCodedStream(
+      ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) final;
+  #endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+  ::PROTOBUF_NAMESPACE_ID::uint8* InternalSerializeWithCachedSizesToArray(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Response* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Messages.Response";
+  }
+  private:
+  inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
+    return nullptr;
+  }
+  inline void* MaybeArenaPtr() const {
+    return nullptr;
+  }
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_msg_2eproto);
+    return ::descriptor_table_msg_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kReplyFieldNumber = 1,
+  };
+  // required string reply = 1;
+  bool has_reply() const;
+  private:
+  bool _internal_has_reply() const;
+  public:
+  void clear_reply();
+  const std::string& reply() const;
+  void set_reply(const std::string& value);
+  void set_reply(std::string&& value);
+  void set_reply(const char* value);
+  void set_reply(const char* value, size_t size);
+  std::string* mutable_reply();
+  std::string* release_reply();
+  void set_allocated_reply(std::string* reply);
+  private:
+  const std::string& _internal_reply() const;
+  void _internal_set_reply(const std::string& value);
+  std::string* _internal_mutable_reply();
+  public:
+
+  // @@protoc_insertion_point(class_scope:Messages.Response)
+ private:
+  class _Internal;
+
+  ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr reply_;
+  friend struct ::TableStruct_msg_2eproto;
+};
 // ===================================================================
 
 
@@ -1202,9 +1358,85 @@ inline void Command::set_allocated_time(::Messages::Time* time) {
   // @@protoc_insertion_point(field_set_allocated:Messages.Command.time)
 }
 
+// -------------------------------------------------------------------
+
+// Response
+
+// required string reply = 1;
+inline bool Response::_internal_has_reply() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline bool Response::has_reply() const {
+  return _internal_has_reply();
+}
+inline void Response::clear_reply() {
+  reply_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline const std::string& Response::reply() const {
+  // @@protoc_insertion_point(field_get:Messages.Response.reply)
+  return _internal_reply();
+}
+inline void Response::set_reply(const std::string& value) {
+  _internal_set_reply(value);
+  // @@protoc_insertion_point(field_set:Messages.Response.reply)
+}
+inline std::string* Response::mutable_reply() {
+  // @@protoc_insertion_point(field_mutable:Messages.Response.reply)
+  return _internal_mutable_reply();
+}
+inline const std::string& Response::_internal_reply() const {
+  return reply_.GetNoArena();
+}
+inline void Response::_internal_set_reply(const std::string& value) {
+  _has_bits_[0] |= 0x00000001u;
+  reply_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void Response::set_reply(std::string&& value) {
+  _has_bits_[0] |= 0x00000001u;
+  reply_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:Messages.Response.reply)
+}
+inline void Response::set_reply(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _has_bits_[0] |= 0x00000001u;
+  reply_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:Messages.Response.reply)
+}
+inline void Response::set_reply(const char* value, size_t size) {
+  _has_bits_[0] |= 0x00000001u;
+  reply_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:Messages.Response.reply)
+}
+inline std::string* Response::_internal_mutable_reply() {
+  _has_bits_[0] |= 0x00000001u;
+  return reply_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* Response::release_reply() {
+  // @@protoc_insertion_point(field_release:Messages.Response.reply)
+  if (!has_reply()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000001u;
+  return reply_.ReleaseNonDefaultNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void Response::set_allocated_reply(std::string* reply) {
+  if (reply != nullptr) {
+    _has_bits_[0] |= 0x00000001u;
+  } else {
+    _has_bits_[0] &= ~0x00000001u;
+  }
+  reply_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), reply);
+  // @@protoc_insertion_point(field_set_allocated:Messages.Response.reply)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

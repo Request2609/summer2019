@@ -1,6 +1,8 @@
 #pragma once
 #include <stdio.h>
 #include <string.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #include <iostream>
 #include <functional>
 #include <memory>
@@ -15,6 +17,7 @@
 using namespace Messages ;
 using namespace std ;
 using namespace placeholders ;
+class rpc ;
 
 class clientLoop {
 public:
@@ -36,7 +39,7 @@ private:
     bool stop ;
     shared_ptr<clientSock> client;
     buffer bf ;
-    rpc*rc ;
+    rpc *rc ;
     vector<string> cmdStl ;
     int servFd ;
 };

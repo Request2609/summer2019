@@ -24,18 +24,18 @@ class cmdSet ;
 class redisDb ;
 class dbObject ;
 class factory ;
+class redisCommand ;
 
 class redisCommand {
     //该命令的的处理函数
-    typedef function<int(weak_ptr<redisDb>, shared_ptr<Command>)>call ;
+    typedef function<int(shared_ptr<redisDb>&, shared_ptr<Command>&)>call ;
 public :
-    redisCommand(string name, int arity, char* flag, call*callBack, 
+    redisCommand(string name, int arity, string flag,  
                  int fir, int last, int keyStep, long long msecond, long long calls) {
             this->name = name ;
             this->arity = arity ;
             this->flags = flag ;
-            this->callBack = callBack ;
-            this->getKeys = NULL ;
+ ///           this->callBack = move(callBack) ;
             this->firstKey = fir ;
             this->lastKey = last ;
             this->keyStep = keyStep ;
@@ -44,11 +44,15 @@ public :
     } 
     ~redisCommand() {}
 public :
+    void setCallBack(call cb) { this->callBack = cb ; }
     int cmdSet() ;
+    int cb(shared_ptr<redisDb>&db, shared_ptr<Command>&wcmd) { 
+        return callBack(db, wcmd);  
+    }
     //函数指针，指向命令的具体实现
   //  string redisCommandProc(shared_ptr<Command>cd) ;
 private :
-    call* callBack ;
+    call callBack ;
     string stringRes ;
     string name ;
     //参数数量限制,用于验证参数是否正确
@@ -56,7 +60,7 @@ private :
     //命令的权限位，只读的r，不确定的输出R，在redis加载数据的时候使用l
     string flags ;
     //只有在你要用复杂的逻辑去告诉Redis哪个参数才是真正的key的时候才需要。
-    redisGetKeysProc*getKeys ;
+///:    redisGetKeysProc*getKeys ;
     //命令的度量项，有数据库设置，初始化为０
     int firstKey ;
     int lastKey ;
@@ -72,25 +76,23 @@ public:
     cmdSet() {
         //申请16个数据库
         dbLs.reserve(16) ;
+        for(int i=0; i<16; i++) {
+            dbLs.push_back({i ,shared_ptr<redisDb>(new redisDb)}) ;
+        }
         //get命令,F表示时间复杂度比较小的命令,Fast
-        cmdList.insert(make_pair("get", 
-                                 make_shared<redisCommand>("get", 2, "rF", nullptr, 1, 1, 1, 0, 0))) ;
-        cmdList.insert(make_pair("set", 
-                                 make_shared<redisCommand>("set", -3, "wm", setCmd, 1,1, 1, 0, 0))) ;
-        cmdList.insert(make_pair("append", 
-                                 make_shared<redisCommand>("append", 3, "wm", NULL, 1,1, 1, 0, 0))) ;
-        cmdList.insert(make_pair("hset", 
-                                 make_shared<redisCommand>("hset", -4, "wmF", NULL, 1, 1, 1, 0, 0))) ;
-        cmdList.insert(make_pair("hget", 
-                                 make_shared<redisCommand>("hget", 3, "rF", NULL, 1, 1, 1, 0, 0))) ;
-        cmdList.insert(make_pair("hdel", 
-                                 make_shared<redisCommand>("hdel", -3, "wF", NULL, 1, 1, 1, 0, 0))) ;
-        cmdList.insert(make_pair("del", 
-                                 make_shared<redisCommand>("del", -2, "w", NULL, 1, -1, 1, 0, 0))) ;
-    }
+    /*    cmdList.insert({"get", 
+                            make_shared<redisCommand>("get", 2, "rF", nullptr, 1, 1, 1, 0, 0)}) ;
+      */  
+        //初始化set命令
+        shared_ptr<redisCommand>tt(new redisCommand("set", -3, "wm",  1, 1, 1, 0, 0)) ;
+        //函数指针不能作为构造函数参数
+        tt->setCallBack(setCmd) ;
+        cmdList.insert(make_pair("set", tt)) ;
+    } 
+
     ~cmdSet() {}
 public :
-    int redisCommandProc(int num, shared_ptr<Command>& wcmd) ;
+    int redisCommandProc(int num, shared_ptr<Command>& cmd) ;
     shared_ptr<redisDb> getDB(int num) ;
     //扩大数据库
     //返回命令集合

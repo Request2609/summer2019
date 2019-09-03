@@ -7,11 +7,11 @@ int redisDb :: isExist(shared_ptr<Command>&cmds) {
     if(cmd == "set") {
         string key = cmds->keys(0).key(0) ;
         //查找相应的键值
-        vector<dbObject>::iterator iter ;
+        vector<shared_ptr<dbObject>>::iterator iter ;
         for(iter = db.begin(); iter != db.end(); iter++) {
-            if(key == iter->getKey()) {
+            if(key == (*iter)->getKey()) {
                //修改键对应的值
-                iter->setValue(cmds->vals(0).val(0)) ;
+                (*iter)->setValue(cmds->vals(0).val(0)) ;
                 return 1 ;
             }
         }

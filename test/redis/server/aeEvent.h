@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <iostream>
 #include <sys/epoll.h>
 #include <map>
 #include "aeSocket.h"

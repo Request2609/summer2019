@@ -18,13 +18,14 @@ class aeEvent ;
 class rpc ;
 class cmdSet ;
 class redisCommand ;
+
 //错误类型
 enum {
-    NOTFOUND = 1,
-    FOUND = 2,
-    KEYINVALID = 3,
-    SUCESS = 4, 
-    PROCESSERROR = -1
+    NOT_FOUND = 1,
+    FOUND_ = 2,
+    KEY_INVALID = 3,
+    SUCESS_ = 4, 
+    PROCESS_ERROR = -1
 } ; 
 
 //处理消息请求的函数
