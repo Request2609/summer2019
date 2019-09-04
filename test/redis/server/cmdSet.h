@@ -29,6 +29,7 @@ class redisCommand ;
 class redisCommand {
     //该命令的的处理函数
     typedef function<int(shared_ptr<redisDb>&, shared_ptr<Command>&)>call ;
+    typedef function<string(shared_ptr<redisDb>&, shared_ptr<Command>&)>getCall ;
 public :
     redisCommand(string name, int arity, string flag,  
                  int fir, int last, int keyStep, long long msecond, long long calls) {
@@ -44,7 +45,7 @@ public :
     } 
     ~redisCommand() {}
 public :
-    void setCallBack(call cb) { this->callBack = cb ; }
+    void setSetCallBack(call cb) { this->callBack = cb ; }
     int cmdSet() ;
     int cb(shared_ptr<redisDb>&db, shared_ptr<Command>&wcmd) { 
         return callBack(db, wcmd);  
@@ -79,15 +80,15 @@ public:
         for(int i=0; i<16; i++) {
             dbLs.push_back({i ,shared_ptr<redisDb>(new redisDb)}) ;
         }
-        //get命令,F表示时间复杂度比较小的命令,Fast
-    /*    cmdList.insert({"get", 
-                            make_shared<redisCommand>("get", 2, "rF", nullptr, 1, 1, 1, 0, 0)}) ;
-      */  
         //初始化set命令
-        shared_ptr<redisCommand>tt(new redisCommand("set", -3, "wm",  1, 1, 1, 0, 0)) ;
+        shared_ptr<redisCommand>tset(new redisCommand("set", -3, "wm",  1, 1, 1, 0, 0)) ;
         //函数指针不能作为构造函数参数
-        tt->setCallBack(setCmd) ;
-        cmdList.insert(make_pair("set", tt)) ;
+        tset->setCallBack(setCmd) ;
+        cmdList.insert(make_pair("set", tset)) ;
+
+        shared_ptr<redisCommand>tget(new redisCommand("get", -3, "wm",  1, 1, 1, 0, 0)) ;
+        tget->setGetCallBack(getCmd) ;
+        cmdList.insert(make_pair("get", tget)) ;
     } 
 
     ~cmdSet() {}
@@ -100,6 +101,7 @@ public :
 public :
     static int isKeyExist(shared_ptr<redisDb>&wcmd, shared_ptr<Command>&cmd) ;
     static int setCmd(shared_ptr<redisDb>&wcmd, shared_ptr<Command>&tmp) ;
+    static string getCmd(shared_ptr<redisDb>&wcmd, shared_ptr<Command>&tmp) ;
 private:
     //数据库,键值是数据库编号码,之后数据库对象
     vector<pair<int, shared_ptr<redisDb>>>dbLs ;

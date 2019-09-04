@@ -1,8 +1,9 @@
 #include "request.h"
 
+class cmds ;
 void cmds :: build() {
     cmdList.insert(make_pair("set", 3)) ;
-    cmdList.insert(make_pair("get", 3)) ;
+    cmdList.insert(make_pair("get", 2)) ;
 }
 
 cmds :: cmds() {
@@ -13,33 +14,51 @@ cmds :: ~cmds() {}
 //匹配键值对
 //创建命令表
 int request :: processCmd(vector<string>&res, Command&com) {
-
-    if(res[0] == "set") {
+    //创建命令集合
+    static cmds cd ;
+    cd.build() ;
+    int len = res.size() ;
+    if(!strcasecmp(res[0].c_str(), "set")) {
         //获取该命令的参数个数
-        cmds cd ;
-        cd.build() ;
         int ret = cd.cmdList[res[0]] ;
-        cout << res.size() << "   " << ret << endl ;
-        if((int)res.size() != ret) {
+        if(len != ret) {
             cout << "error usage" << endl ;        
             return -1 ;
         }
+        com.set_num(num) ;
         com.set_cmd(res[0]) ;
         Key* key = com.add_keys() ;
         string* k = key->add_key() ;
         *k = res[1] ;
         Value* val = com.add_vals() ;
         string* v = val->add_val() ;
+        //设置数据库编号
+        com.set_num(0) ;
         *v = res[2] ;
         return 1 ;
     } 
+    //get命令
+    else if(!strcasecmp(res[0].c_str(), "get")) {
+        int ret = cd.cmdList[res[0]] ;
+        if(ret != len) {
+            cout << "error command!" << endl ;
+            return -1 ;
+        }
+        com.set_num(num) ;
+        com.set_cmd("get") ;
+        Key* key = com.add_keys() ;
+        string* k = key->add_key() ;
+        *k = res[1] ;
+        return 1 ;
+    }
     else {
         cout << "command not found" << endl ;
         return -1 ;
     }
 }
 
-int request :: sendReq(int fd, vector<string>&res) {
+int request :: sendReq(int fd, vector<string>&res, int num) {
+    this->num = num ;
     Command cmd ;
     cmds cd ;
     cd.build() ;
@@ -90,7 +109,7 @@ int request :: sendAfterSerial(int fd, Command& cmd) {
     if(ret == 0) {
         return 5 ;
     }
-    cout << "发送数据！"<< endl ;
+    
     if(send(fd, a.c_str(), len+1, 0) < 0) {
         cout << "errno connect" << endl ;
         return -1;

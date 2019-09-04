@@ -60,6 +60,14 @@ int cmdSet :: redisCommandProc(int num, shared_ptr<Command>&cmd) {
             return PROCESSERROR ;
         }
         return SUCESS ;
-    }   
+    }
+    //get 命令
+    if(!strcasecmp(cd.c_str(), "get")) {
+        int ret = cmdList[cd].cb(wrdb, cmd) ;
+        if(ret < 0) {
+            return PROCESSERROR ;
+        }
+        return SUCESS ;
+    }
     //下面是一系列命令
 }

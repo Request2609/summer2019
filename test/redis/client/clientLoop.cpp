@@ -20,6 +20,7 @@ void clientLoop :: start(string ip, string port) {
         cout << "服务器找不到！" << endl ;
         return ;
     }
+    num = 0 ;
     //处理命令
     while(!stop) {
         string cmd, res; 
@@ -31,15 +32,16 @@ void clientLoop :: start(string ip, string port) {
         cmdStl = split(cmd, " ") ;
         //退出
         if(cmd == "quit" || cmd == "q") {
+            rc->disConnect() ; 
             cout << "bye bye!" << endl ; 
             break ;
         }
         if(cmdStl.size() < 3) {
             continue ;
         }
-
+        
         //解析并序列化发送命令
-        int ret = rc->sendRequest(cmdStl) ;
+        int ret = rc->sendRequest(cmdStl, num) ;
         if(ret == 5) {
             cout << "无法连接到服务器！～"<< endl ;
         }
@@ -47,22 +49,10 @@ void clientLoop :: start(string ip, string port) {
             cout << "发送出错！" << endl ;
         }
         //返回结果并打印
-        recvInfo() ;
+        string a = rc->getResponse() ;
+        cout << a << endl ;
        //序列化
     }
-}
-
-//接收消息
-int clientLoop :: recvInfo() {
-    char buf[4096] ;
-    if(read(servFd, buf, sizeof(buf)) < 0) {
-        cout << __FILE__ << "           " << __LINE__ << endl ;
-        return -1 ;
-    }
-
-    //接收消息,直接打印
-    cout << buf << endl ; 
-    return 1 ;
 }
 
 int clientLoop :: setEndSig() {
@@ -73,10 +63,10 @@ int clientLoop :: setEndSig() {
 int clientLoop :: sendRequest(string& res) {
     int ret = 0;
     int len = res.size() ;
-    if(len < 4096) {
+    if(len < SIZE) {
         //设置最后一个元素为１，表示已经发送完成
         res+='1' ;
-        char buff[4096] ;
+        char buff[SIZE] ;
         strcpy(buff, res.c_str()) ;
         //使用servFd发送消息
         ret = writen(servFd, buff, sizeof(buff)) ;  

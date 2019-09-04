@@ -48,9 +48,10 @@ int cmdProcess :: processMsg(shared_ptr<aeEvent>&tmp) {
             res = backInfo::processError() ;
         }   
     } 
-    shared_ptr<Response>re(&res) ;
+    shared_ptr<Response>re(new Response(res)) ;
     rc->response(re, tmp->getConnFd()) ;
     //获取到响应的结果
+    return 1 ;
 }
 
 int cmdProcess :: sendMsg(shared_ptr<aeEvent>tmp) {

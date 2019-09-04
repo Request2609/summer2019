@@ -13,7 +13,7 @@
 #include "buffer.h"
 #include "rpc.h"
 #include "serializeString.h"
-#define SIZE 4096
+#define SIZE 1024
 using namespace Messages ;
 using namespace std ;
 using namespace placeholders ;
@@ -40,6 +40,5 @@ private:
     rpc *rc ;
     vector<string> cmdStl ;
     int servFd ;
-    int num ;
 };
 

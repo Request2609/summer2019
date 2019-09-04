@@ -7,17 +7,11 @@
  #include<netinet/tcp.h>
 #include <memory>
 #include "msg.pb.h"
-
+#define REQ_SIZE 4096 
 using namespace std ;
 using namespace Messages ;
 class cmds ;
-class request {
-public :
-    static int isConnect(int fd) ;
-    static int sendAfterSerial(int fd, Command& cmd) ;
-    static int sendReq(int fd, vector<string>&res) ;
-    static int processCmd(vector<string>&res, Command&com) ;
-} ;
+
 
 class cmds {
 public:
@@ -30,3 +24,12 @@ public :
     void build() ;
 };
 
+class request {
+public :
+    static int isConnect(int fd) ;
+    static int sendAfterSerial(int fd, Command& cmd) ;
+    static int sendReq(int fd, vector<string>&res, int num) ;
+    static int processCmd(vector<string>&res, Command&com) ;
+private :
+    static int num ;
+} ;

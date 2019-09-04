@@ -46,18 +46,21 @@ int aeEventloop :: addServerEvent(string addr, string port) {
 int aeEventloop :: start() {
     while(!stop) {
         int ret = aep->wait(fireList) ;
+        
         if(ret < 0) {
             return -1 ;
         }
+        //全拷贝过来
+        vector<epoll_event>ls  = fireList ;
         int len = fireList.size() ;
         for(int i=0; i<len; i++) {
-            int fd = fireList[i].data.fd ;
+            int fd = ls[i].data.fd ;
             //设置epoll_event
-            eventData[fd]->setEvent(&fireList[i]) ;
+            eventData[fd]->setEvent(&ls[i]) ;
             aeProcessEvent(fd) ;
         }
         //清除活跃事件表
-        fireList.clear() ;
+        fireList.clear() ;     
     }
     return 1 ;
 }
@@ -82,7 +85,6 @@ int aeEventloop :: aeProcessEvent(int fd) {
         };
         //该fd要是能在监听套接字中找到，新事件
         if(find() == 1) {
-            cout << "注册到epoll " << endl ;
             int ret = acceptNewConnect(fd) ;
             if(ret < 0) {
                 return 0 ;
@@ -117,7 +119,7 @@ int aeEventloop :: acceptNewConnect(int fd) {
     //接收新连接
     int newFd = eventData[fd]->getSocket()->acceptClient() ;
     if(newFd < 0) {
-        cout << __FILE__ <<  "       " << __LINE__ << endl ;
+        cout << __FILE__ <<  "       " << __LINE__ << " " << strerror(errno)<< endl ;
         return -1 ;
     }
     //创建相应的aeEvent事件

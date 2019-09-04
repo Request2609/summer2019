@@ -19,26 +19,37 @@ void rpc :: setCallMethod(call cb) {
     request = move(cb); 
 }   
 
+string rpc :: getResponse() {
+    string res  ;
+    char buf[BFSIZE] ;
+    if(read(conFd, buf, sizeof(buf)) < 0) {
+        cout << __FILE__ << "           " << __LINE__<< "  " << strerror(errno)<< endl ;
+        return "" ;
+    }
+    Response re ;
+    //反序列化
+    re.ParseFromArray(buf, sizeof(buf)) ;
+    res = re.reply() ;
+    return res ;
+}
 void rpc :: setCallMethod(parse par) {
     parseMethod = move(par) ;
 }
 
 //连接服务器
 int rpc :: Connect() {
-    int ret = client.anetCreateSock() ;
-    cout << "客户端套接字！" << ret << endl ;
+    client.anetCreateSock() ;
     conFd = client.clientConnect(ipPort.first, ipPort.second) ;
     if(conFd < 0) {
         return -1 ;
     }
-    cout << "连接－－－－》" << conFd << endl ;
     return conFd ;
 }
 
-int rpc :: sendRequest(vector<string>&argStl) { 
+int rpc :: sendRequest(vector<string>&argStl, int num) { 
     int count = 0 ;
-    cout <<  "创建套接字成功!" << conFd << endl ;
-    int ret = request(conFd, argStl) ; 
+    this->num = num ;
+    int ret = request(conFd, argStl, num) ; 
     //断开连接
     if(ret == 5) {
         while(count < 5) {
@@ -52,7 +63,7 @@ int rpc :: sendRequest(vector<string>&argStl) {
             }
         }
     }
-    ret = request(conFd, argStl) ;
+    ret = request(conFd, argStl, num) ;
     if(ret < 0) {
         return -1 ;
     }
